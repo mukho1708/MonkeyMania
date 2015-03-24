@@ -164,11 +164,11 @@
 		</dict>
 		<key>set_monkey-jump</key>
 		<dict>
-			<key>isDirty</key>
-			<true/>
 			<key>isSmartSpriteSheet</key>
 			<true/>
 		</dict>
+		<key>set_monkey-jump/rope_texture.png</key>
+		<dict/>
 	</dict>
 	<key>versionStr</key>
 	<string>revision : 10891b8575
