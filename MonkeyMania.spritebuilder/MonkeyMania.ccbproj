@@ -78,6 +78,8 @@
 			<key>previewFolderHidden</key>
 			<true/>
 		</dict>
+		<key>MainScene.ccbi</key>
+		<dict/>
 		<key>Sprites</key>
 		<dict/>
 		<key>ccbResources</key>
