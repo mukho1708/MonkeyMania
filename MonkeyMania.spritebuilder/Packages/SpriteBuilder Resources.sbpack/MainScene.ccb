@@ -178,11 +178,15 @@
 							<key>bodyShape</key>
 							<integer>0</integer>
 							<key>collisionCategories</key>
-							<array/>
+							<array>
+								<string>border</string>
+							</array>
 							<key>collisionMask</key>
-							<array/>
+							<array>
+								<string>monkey</string>
+							</array>
 							<key>collisionType</key>
-							<string></string>
+							<string>border</string>
 							<key>cornerRadius</key>
 							<real>0.0</real>
 							<key>density</key>
@@ -296,6 +300,8 @@
 								</array>
 							</dict>
 						</array>
+						<key>selected</key>
+						<true/>
 					</dict>
 				</array>
 				<key>customClass</key>
