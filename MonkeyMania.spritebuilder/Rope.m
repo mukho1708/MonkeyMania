@@ -12,7 +12,7 @@
 
 - (void)didLoadFromCCB
 {
-    self.position = ccp(400, 250);
+    //self.position = ccp(400, 250);
     self.zOrder = 3;
     self.physicsBody.collisionType = @"rope";
 }

@@ -4,5 +4,6 @@
 {
     // define variables here;
     CCPhysicsNode* physicsNode;
+    CCNode* top;
 }
 @end

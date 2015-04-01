@@ -12,7 +12,7 @@
 
 - (void)didLoadFromCCB
 {
-    self.position = ccp(270, 110);
+    //self.position = ccp(270, 110);
     self.zOrder = 3;
     self.physicsBody.collisionType = @"monkey";
 }
