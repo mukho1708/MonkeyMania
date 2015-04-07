@@ -3,10 +3,12 @@
 @implementation MainScene {
     Monkey *_monkey;
     Rope *_rope;
-    CCPhysicsJoint *_monkeyRopeJoint;
+    //CCNode *contentNode;
+    CCPhysicsJoint *_ropeMonkeyJoint;
     CCPhysicsJoint *_topRopeJoint;
     //CCPhysicsJoint *_monkeyRopeJointRotary;
     //CCNode *_contentNode;
+    CCAction *_followMonkey;
 }
 
 - (void)didLoadFromCCB 
@@ -23,9 +25,9 @@
     //_monkey.physicsBody.affectedByGravity = FALSE;
     [physicsNode addChild:_monkey];
     // visualize physics bodies & joints
-    physicsNode.debugDraw = TRUE;
+    //physicsNode.debugDraw = TRUE;
     _topRopeJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:top.physicsBody bodyB:_rope.physicsBody anchorA:ccp(100,0)];
-    _monkeyRopeJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:_rope.physicsBody bodyB:_monkey.physicsBody anchorA:ccp(10,-150)];
+    _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:_rope.physicsBody bodyB:_monkey.physicsBody anchorA:ccp(10,-150)];
     //_monkeyRopeJointRotary = [CCPhysicsJoint connectedRotaryLimitJointWithBodyA:_rope.physicsBody bodyB:_monkey.physicsBody min:5.0f max:5.0f];
     //physicsNode.collisionDelegate = self;
     
@@ -39,9 +41,17 @@
 
 -(void) touchEnded:(CCTouch *)touch withEvent:(CCTouchEvent *)event
 {
-    // when touches end, meaning the user releases their finger, release the catapult
-    [_monkeyRopeJoint invalidate];
-    _monkeyRopeJoint = nil;
+    
+    _monkey.physicsBody.allowsRotation = TRUE;
+    
+    [_ropeMonkeyJoint invalidate];
+    _ropeMonkeyJoint = nil;
+    
+    CCAnimationManager* animationManager = _monkey.animationManager;
+    [animationManager runAnimationsForSequenceNamed:@"JumpRight"];
+    
+    _followMonkey = [CCActionFollow actionWithTarget:_monkey worldBoundary:self.boundingBox];
+    [contentNode runAction:_followMonkey];
 }
 
 
