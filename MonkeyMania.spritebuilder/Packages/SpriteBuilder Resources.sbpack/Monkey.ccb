@@ -271,6 +271,8 @@
 			<key>collisionMask</key>
 			<array>
 				<string>border</string>
+				<string>rope</string>
+				<string>ground</string>
 			</array>
 			<key>collisionType</key>
 			<string>monkey</string>
@@ -283,7 +285,7 @@
 			<key>elasticity</key>
 			<real>0.30000001192092896</real>
 			<key>friction</key>
-			<real>1</real>
+			<real>0.30000001192092896</real>
 			<key>points</key>
 			<array>
 				<array>
