@@ -16,7 +16,7 @@
 	<key>currentResolution</key>
 	<integer>0</integer>
 	<key>currentSequenceId</key>
-	<integer>2</integer>
+	<integer>3</integer>
 	<key>docDimensionsType</key>
 	<integer>1</integer>
 	<key>fileType</key>
@@ -648,7 +648,7 @@
 			<dict>
 				<key>baseValue</key>
 				<array>
-					<string>set_monkey-jump/monkey_jump_right.png</string>
+					<string>set_monkey-jump/monkey_jump_right_2.png</string>
 					<string>Use regular file</string>
 				</array>
 				<key>name</key>
@@ -658,7 +658,7 @@
 				<key>value</key>
 				<array>
 					<string></string>
-					<string>set_monkey-jump/monkey_jump_right.png</string>
+					<string>set_monkey-jump/monkey_jump_right_2.png</string>
 				</array>
 			</dict>
 			<dict>

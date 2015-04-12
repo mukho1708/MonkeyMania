@@ -12,6 +12,8 @@
     BOOL _gameOver;
     CCButton *_restartButton;
     CCAnimationManager* animationManager;
+    int _counter;
+    BOOL _allowImpulse;
 }
 
 - (void)didLoadFromCCB 
@@ -21,10 +23,11 @@
     _restartButton.visible = FALSE;
     _ropes = [NSMutableArray array];
     _topRopeJoints = [NSMutableArray array];
-    
+    _counter = 0;
     //Setup initial ropes
     for (int i = 0; i<6; i++) {
-        [self addRopeWithSize:1 atPosX:(i+1)*(150+arc4random_uniform(50))];
+        _counter++;
+        [self addRopeWithSize:1 atPosX:(i+1)*150+arc4random_uniform(50)];
     }
     
     
@@ -33,15 +36,16 @@
     firstRope.rotation = 75.0f;
     
     _monkey = (Monkey*)[CCBReader load:@"Monkey"];
+    _monkey.name = @"monkey";
     _monkey.position = [physicsNode convertToNodeSpace:[firstRope convertToWorldSpace:ccp(5,-151)]];
     [physicsNode addChild:_monkey];
     
     _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:firstRope.physicsBody bodyB:_monkey.physicsBody anchorA:ccp(10,-150)];
-    
+    _allowImpulse = TRUE;
     
     physicsNode.collisionDelegate = self;
     // visualize physics bodies & joints
-    physicsNode.debugDraw = TRUE;
+    //physicsNode.debugDraw = TRUE;
     
 }
 
@@ -50,6 +54,7 @@
     
     for (int i = 0; i < size; i++) {
         Rope *_rope = (Rope*)[CCBReader load:@"Rope"];
+        _rope.name = [NSString stringWithFormat:@"rope%d", _counter];
         _rope.rotation = 45+arc4random_uniform(30);
         _rope.position = [top convertToWorldSpace:ccp(x, 1)];
         [physicsNode addChild:_rope];
@@ -78,6 +83,10 @@
     [_ropeMonkeyJoint invalidate];
     _ropeMonkeyJoint = nil;
     
+    if (_allowImpulse) {
+        [_monkey.physicsBody applyImpulse:ccp(50, 50)];
+        _allowImpulse = FALSE;
+    }
     animationManager = _monkey.animationManager;
     [animationManager runAnimationsForSequenceNamed:@"JumpRight"];
     
@@ -111,14 +120,21 @@
 }
 
 -(BOOL)ccPhysicsCollisionPostSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey rope:(CCNode *)rope {
-    _monkey.physicsBody.allowsRotation = FALSE;
-    rope.physicsBody.collisionMask = @[];
-    if (_ropeMonkeyJoint != nil) {
-        [_ropeMonkeyJoint invalidate];
-        _ropeMonkeyJoint = nil;
+    if (![rope.physicsBody.collisionMask  isEqual: @[]]) {
+        rope.physicsBody.collisionMask = @[];
+        monkey.physicsBody.allowsRotation = FALSE;
+        [animationManager runAnimationsForSequenceNamed:@"Default"];
+    
+        if (_ropeMonkeyJoint != nil) {
+            [_ropeMonkeyJoint invalidate];
+            _ropeMonkeyJoint = nil;
+        }
+        monkey.position = [physicsNode convertToNodeSpace:[rope convertToWorldSpace:ccp(5,-151)]];
+        _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:rope.physicsBody bodyB:monkey.physicsBody anchorA:ccp(10,-150)];
+        _followMonkey = [CCActionFollow actionWithTarget:monkey worldBoundary:self.boundingBox];
+        [contentNode runAction:_followMonkey];
+        _allowImpulse = TRUE;
     }
-    monkey.position = [physicsNode convertToNodeSpace:[rope convertToWorldSpace:ccp(5,-151)]];
-    _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:rope.physicsBody bodyB:monkey.physicsBody anchorA:ccp(10,-150)];
     return TRUE;
 }
 
