@@ -84,7 +84,7 @@
     _ropeMonkeyJoint = nil;
     
     if (_allowImpulse) {
-        [_monkey.physicsBody applyImpulse:ccp(50, 50)];
+        [_monkey.physicsBody applyImpulse:ccp(15, 15)];
         _allowImpulse = FALSE;
     }
     animationManager = _monkey.animationManager;
@@ -131,8 +131,8 @@
         }
         monkey.position = [physicsNode convertToNodeSpace:[rope convertToWorldSpace:ccp(5,-151)]];
         _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:rope.physicsBody bodyB:monkey.physicsBody anchorA:ccp(10,-150)];
-        _followMonkey = [CCActionFollow actionWithTarget:monkey worldBoundary:self.boundingBox];
-        [contentNode runAction:_followMonkey];
+        //_followMonkey = [CCActionFollow actionWithTarget:monkey worldBoundary:self.boundingBox];
+        [contentNode stopAllActions];// runAction:_followMonkey];
         _allowImpulse = TRUE;
     }
     return TRUE;
