@@ -5,7 +5,9 @@
     // define variables here;
     CCNode* contentNode;
     CCPhysicsNode* physicsNode;
-    CCNode* top;
-    CCNode* ground;
+    CCNode* top1;
+    CCNode* ground1;
+    CCNode* top2;
+    CCNode* ground2;
 }
 @end
