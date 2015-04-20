@@ -273,6 +273,7 @@
 				<string>border</string>
 				<string>rope</string>
 				<string>ground</string>
+				<string>top</string>
 			</array>
 			<key>collisionType</key>
 			<string>monkey</string>
