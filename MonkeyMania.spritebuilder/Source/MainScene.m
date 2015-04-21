@@ -105,7 +105,7 @@
     _ropeMonkeyJoint = nil;
     
     if (_allowImpulse) {
-        [_monkey.physicsBody applyImpulse:ccp(170, 50)];
+        [_monkey.physicsBody applyImpulse:ccp(1700, 500)];
         _allowImpulse = FALSE;
     }
     animationManager = _monkey.animationManager;
@@ -207,6 +207,7 @@
         rope.physicsBody.collisionMask = @[];
         _currentRope = (Rope *)rope;
         monkey.physicsBody.allowsRotation = FALSE;
+        _currentRope.physicsBody.allowsRotation = TRUE;
         
         [animationManager runAnimationsForSequenceNamed:@"Default"];
     
