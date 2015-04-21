@@ -9,5 +9,6 @@
     CCNode* ground1;
     CCNode* top2;
     CCNode* ground2;
+    CCLabelTTF* score;
 }
 @end

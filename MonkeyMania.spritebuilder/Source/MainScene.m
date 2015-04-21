@@ -125,6 +125,7 @@
 
 - (void)update:(CCTime)delta
 {
+    score.string = [NSString stringWithFormat:@"Score: %d", (int)(maxX-_beforeCollisionX)/10];
     _gameTimer += delta;
     if (_currentRope == _prevCurRope) {
         _ropeTimer += delta;
