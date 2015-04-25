@@ -41,11 +41,11 @@ Add lateral movement to players
 
 Added lateral movements to players, used UISwipeGestureRecognizer and UITapGestureRecognizer, however, the movements are not smooth. (This version of the game was not committed in git. I had a copy of the Gameplay.m file from this version which I have added in the Repository separately)
 
-Figured out how to make the game more interesting by introducing power-ups, shields and bonus points
+Figured out how to make the game more interesting by introducing power-ups, shields, game score & bonus scores/health points
 
 <b>What I am doing this week..
 
-Figure out the game will progress 
+Figure out how the game will progress 
 
 Add enemy’s health
 
@@ -79,7 +79,7 @@ Added enemy’s health
 
 Improved player movements by using touchBegan and touchMoved methods to recognize swipe gestures
 
-Game Progress - 30 seconds into the game, power-ups, bonus health points, shields will show on the top of the screen and both players will compete to get them by jumping. Game ends when one of the player's health goes to zero.
+Game Progress - 30 seconds into the game, power-ups, bonus health points/player score, shields will show on the top of the screen and both players will compete to get them by jumping. Game ends when one of the player's health goes to zero.
 
 <b>What I am doing this week..
 
@@ -89,7 +89,11 @@ Add more fight tactics to players, add jump movement
 
 <b>What I am doing next week..
 
-Add high score screen, and if possible, more levels
+Improve Health labels and add score labels 
+
+Add menu screen
+
+Add more levels
 
 <b>Goals for the rest of the game.. 
 
@@ -99,7 +103,7 @@ Work on adding more levels if possible
 
 
 
-#Date: April 12th 2015
+#Date: April 14th 2015
 
 <b>What was the goal for last week..
 
@@ -117,7 +121,7 @@ Added a crouchcombo attack for Wolfe
 
 <b>What I am doing this week..
 
-Improve Health and score labels
+Improve Health labels and add score labels
 
 Add menu screen
 
@@ -130,4 +134,48 @@ Add more attack combos/improve enemy's attack (increased difficulty)
 <b>Goals for the rest of the game.. 
 
 Improve the finish, background, add high score screens, etc
+
+
+
+#Date: April 21st 2015
+
+<b>What was the goal for last week..
+
+Improve Health labels and add score labels
+
+Add menu screen
+
+Add more levels/enemies
+
+<b>What I actually did last week..
+
+Improved Health labels and add score labels
+
+Added Training mode for the game
+
+Added 4 levels to main Challenge and 2 levels to Training
+
+Added enemies Gaso and Hencher
+
+Improved fighting sequences (animation)
+
+Generalized the code to work for all enemies
+
+<b>What I am doing this week..
+
+Add menu screen
+
+Improve Gaso and Hencher's attack sequences
+
+Add special combo attacks for new levels for both Wolfe and Enemies
+
+Enable enemies to compete for power-ups in levels 3 and 4
+
+<b>What I am doing next week..
+
+Improve the finish
+
+<b>Goals for the rest of the game.. 
+
+Improve the finish
 

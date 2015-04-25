@@ -96,6 +96,14 @@
     
 }
 
+-(void) addFlareWithSizeY:(int)size atPosX:(float)x atTop:(CCNode*)top
+{
+    CCParticleSystem* effect = (CCParticleSystem *)[CCBReader load:@"Flare"];
+    effect.position = ccp(x,size);
+    [effect resetSystem];
+    [physicsNode addChild:effect];
+}
+
 // called on every touch in this scene
 -(void) touchBegan:(CCTouch *)touch withEvent:(CCTouchEvent *)event
 {
@@ -183,6 +191,7 @@
                 [self addRopeWithSize:1 atPosX:top.position.x+100+arc4random_uniform(20) atTop:top];
                 _counter++;
                 [self addRopeWithSize:1 atPosX:top.position.x+500+arc4random_uniform(20) atTop:top];
+                [self addFlareWithSizeY:250 atPosX:top.position.x+300 atTop:top];
             }
         }
         
