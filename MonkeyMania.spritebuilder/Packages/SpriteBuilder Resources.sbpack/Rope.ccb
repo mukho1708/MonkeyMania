@@ -97,7 +97,7 @@
 						<key>value</key>
 						<array>
 							<real>1.3999999761581421</real>
-							<real>-2.6600000858306885</real>
+							<real>-0.86400002241134644</real>
 							<false/>
 							<integer>0</integer>
 						</array>
@@ -192,11 +192,11 @@
 				</array>
 				<array>
 					<real>0.0</real>
-					<real>-200</real>
+					<real>-65</real>
 				</array>
 				<array>
 					<real>10</real>
-					<real>-200</real>
+					<real>-65</real>
 				</array>
 				<array>
 					<real>10</real>
@@ -212,11 +212,11 @@
 					</array>
 					<array>
 						<real>0.0</real>
-						<real>-200</real>
+						<real>-65</real>
 					</array>
 					<array>
 						<real>10</real>
-						<real>-200</real>
+						<real>-65</real>
 					</array>
 					<array>
 						<real>10</real>
@@ -257,7 +257,7 @@
 				<key>value</key>
 				<array>
 					<real>10</real>
-					<real>-200</real>
+					<real>-65</real>
 					<integer>0</integer>
 					<integer>0</integer>
 				</array>

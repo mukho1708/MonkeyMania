@@ -5,7 +5,7 @@
     NSArray *_tops;
     Monkey *_monkey;
     NSMutableArray *_ropes;
-    Rope *_currentRope;
+    NSMutableArray *_currentRope;
     NSMutableArray *_topRopeJoints;
     CCPhysicsJoint *_ropeMonkeyJoint;
     CCAction *_followMonkey;
@@ -16,9 +16,11 @@
     BOOL _allowImpulse;
     float maxX;
     float _beforeCollisionX;
-    Rope *_prevCurRope;
+    NSMutableArray *_prevCurRope;
     float _ropeTimer;
     float _gameTimer;
+    CCColor *_originalColor;
+    Rope *_currentRopeMonkeySeg;
 }
 
 - (void)didLoadFromCCB 
@@ -35,34 +37,48 @@
     _gameTimer = 0;
     
     //Setup initial ropes
-    for (int i = 0; i<4; i++) {
-        _counter++;
-        if (i == 0 || i== 3) {
-            [self addRopeWithSize:1 atPosX:(i+1)*140 atTop:top1];
-        }
-        else
-        {
-            //_scene = 2;
-            //[self addRopeWithSize:1 atPosX:(i+1)*100+arc4random_uniform(20) atTop:top2];
-        }
-        
-    }
-    
+//    for (int i = 0; i<4; i++) {
+//        _counter++;
+//        if (i == 0 || i== 3) {
+//            [self addRopeWithSize:1 atPosX:(i+1)*140 atTop:top1];
+//        }
+//        else
+//        {
+//            //_scene = 2;
+//            //[self addRopeWithSize:1 atPosX:(i+1)*100+arc4random_uniform(20) atTop:top2];
+//        }
+//        
+//    }
+    _counter++;
+    [self addRopeWithSize:1 atPosX:0.15*top1.contentSize.width+arc4random_uniform(10) atTop:top1];
+    _counter++;
+    [self addRopeWithSize:3 atPosX:0.85*top1.contentSize.width+arc4random_uniform(10) atTop:top1];
+    _counter++;
+    [self addRopeWithSize:2 atPosX:top1.contentSize.width+0.15*top2.contentSize.width+arc4random_uniform(10) atTop:top2];
+    _counter++;
+    [self addRopeWithSize:1 atPosX:top1.contentSize.width+0.85*top2.contentSize.width+arc4random_uniform(10) atTop:top2];
     
     _currentRope = [_ropes objectAtIndex:0];
     _prevCurRope = _currentRope;
-    _currentRope.physicsBody.collisionMask = @[];
+    for (id obj in _currentRope) {
+        if ([obj isKindOfClass:[Rope class]]) {
+            ((Rope *)obj).physicsBody.collisionMask = @[];
+        }
+    }
+    //_currentRope.physicsBody.collisionMask = @[];
+    _currentRopeMonkeySeg = ((Rope *)_currentRope[[_currentRope count]-1]);
     
     _monkey = (Monkey*)[CCBReader load:@"Monkey"];
     _monkey.name = @"monkey";
-    _monkey.position = [physicsNode convertToNodeSpace:[_currentRope convertToWorldSpace:ccp(_currentRope.contentSize.width*0.5,_currentRope.contentSize.height*0.85)]];
+    _monkey.position = [physicsNode convertToNodeSpace:[_currentRopeMonkeySeg convertToWorldSpace:ccp(_currentRopeMonkeySeg.contentSize.width*0.5,_currentRopeMonkeySeg.contentSize.height*0.85)]];
     _monkey.physicsBody.allowsRotation = FALSE;
+    _originalColor = _monkey.color;
     maxX = _monkey.position.x;
     _beforeCollisionX = [physicsNode convertToWorldSpace:_monkey.position].x;
     [physicsNode addChild:_monkey];
     
     
-    _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:_currentRope.physicsBody bodyB:_monkey.physicsBody anchorA:ccp(_currentRope.contentSize.width,_currentRope.contentSize.height*0.85)];
+    _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:_currentRopeMonkeySeg.physicsBody bodyB:_monkey.physicsBody anchorA:ccp(_currentRopeMonkeySeg.contentSize.width,_currentRopeMonkeySeg.contentSize.height*0.85)];
     _allowImpulse = TRUE;
     
     physicsNode.collisionDelegate = self;
@@ -73,26 +89,36 @@
 
 -(void) addRopeWithSize:(int)size atPosX:(float)x atTop:(CCNode *)top
 {
+    NSMutableArray *ropeParts = [NSMutableArray array];
     
     for (int i = 0; i < size; i++) {
         Rope *_rope = (Rope*)[CCBReader load:@"Rope"];
         _rope.name = [NSString stringWithFormat:@"rope%d", _counter];
         //_rope.rotation = 45+arc4random_uniform(30);
-        _rope.physicsBody.allowsRotation = FALSE;
+        if (_counter!=1) {
+            _rope.physicsBody.allowsRotation = FALSE;
+        }
         _rope.physicsBody.affectedByGravity = TRUE;
         //if (x <= 568) {
-        _rope.position = ccp(x,320);//[top convertToWorldSpace:[top convertToWorldSpace:[top convertToNodeSpace:ccp(x, 1)]]];
+        _rope.position = ccp(x,([top convertToWorldSpace:top.position].y/2+top.contentSize.height) + (i * _rope.contentSize.height));//[top convertToWorldSpace:[top convertToWorldSpace:[top convertToNodeSpace:ccp(x, 1)]]];
         
         [physicsNode addChild:_rope];
-        [_ropes addObject:_rope];
         if (i==0) {
-            CCPhysicsJoint *topRopeJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:top.physicsBody bodyB:_rope.physicsBody anchorA:[top convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(x,320)]]];//ccp(x,1)];
+            CCPhysicsJoint *topRopeJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:top.physicsBody bodyB:_rope.physicsBody anchorA:[top convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(x,[top convertToWorldSpace:top.position].y/2+top.contentSize.height)]]];//ccp(x,1)];
             
             [_topRopeJoints addObject:topRopeJoint];
+            [ropeParts addObject:topRopeJoint];
+        }
+        else
+        {
+            CCPhysicsJoint *interRopeJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:((Rope *)ropeParts[[ropeParts count]-1]).physicsBody bodyB:_rope.physicsBody anchorA:ccp(_rope.contentSize.width/2,_rope.contentSize.height*0.95)];
+            
+            [ropeParts addObject:interRopeJoint];
         }
         
-        
+        [ropeParts addObject:_rope];
     }
+    [_ropes addObject:ropeParts];
     
 }
 
@@ -121,7 +147,7 @@
     _ropeMonkeyJoint = nil;
     
     if (_allowImpulse) {
-        [_monkey.physicsBody applyImpulse:ccp(1400, 300)];
+        [_monkey.physicsBody applyImpulse:ccp(1800, 300)];
         _allowImpulse = FALSE;
     
         animationManager = _monkey.animationManager;
@@ -139,21 +165,21 @@
         _ropeTimer += delta;
     }
     if (_ropeTimer > 3) {
-        ((CCNode *)_currentRope.children.firstObject).color = [CCColor orangeColor];
+        _monkey.color = [CCColor orangeColor];
         if (_ropeTimer > 6) {
-            ((CCNode *)_currentRope.children.firstObject).color = [CCColor redColor];
+            _monkey.color = [CCColor redColor];
             if(_ropeTimer > 9) {
-                ((CCNode *)_currentRope.children.firstObject).color = [CCColor blackColor];
+                _monkey.color = [CCColor blackColor];
                 [_ropeMonkeyJoint invalidate];
                 _ropeMonkeyJoint = nil;
-                CCPhysicsJoint* topRopeJoint;
-                for (CCPhysicsJoint* joint in _currentRope.physicsBody.joints) {
-                    if ([_topRopeJoints indexOfObject:joint] != -1) {
-                        topRopeJoint = joint;
-                    }
-                }
-                [topRopeJoint invalidate];
-                topRopeJoint = nil;
+//                CCPhysicsJoint* topRopeJoint;
+//                for (CCPhysicsJoint* joint in _currentRope.physicsBody.joints) {
+//                    if ([_topRopeJoints indexOfObject:joint] != -1) {
+//                        topRopeJoint = joint;
+//                    }
+//                }
+//                [topRopeJoint invalidate];
+//                topRopeJoint = nil;
                 _allowImpulse = FALSE;
             }
         }
@@ -188,34 +214,34 @@
             if (topScreenPosition.x <= (-1 * top.contentSize.width)) {
                 top.position = ccp(top.position.x + 2 * top.contentSize.width, top.position.y);
                 _counter++;
-                [self addRopeWithSize:1 atPosX:top.position.x+100+arc4random_uniform(20) atTop:top];
+                [self addRopeWithSize:1 atPosX:top.position.x+0.15*top.contentSize.width+arc4random_uniform(10) atTop:top];
                 _counter++;
-                [self addRopeWithSize:1 atPosX:top.position.x+500+arc4random_uniform(20) atTop:top];
+                [self addRopeWithSize:1 atPosX:top.position.x+0.85*top.contentSize.width+arc4random_uniform(10) atTop:top];
                 [self addFlareWithSizeY:250 atPosX:top.position.x+300 atTop:top];
             }
         }
         
-        NSMutableArray *offScreenRopes = nil;
-        
-        for (CCNode *rope in _ropes) {
-            CGPoint ropeWorldPosition = [physicsNode convertToWorldSpace:rope.position];
-            CGPoint ropeScreenPosition = [self convertToNodeSpace:ropeWorldPosition];
-            if (ropeScreenPosition.x < (rope.contentSizeInPoints.width/2)) {
-                if (!offScreenRopes) {
-                    offScreenRopes = [NSMutableArray array];
-                }
-                [offScreenRopes addObject:rope];
-            }
-        }
-        
-        for (CCNode *ropeToRemove in offScreenRopes) {
-            CCPhysicsJoint *jointToRemove = ropeToRemove.physicsBody.joints.firstObject;
-            [_topRopeJoints removeObject:jointToRemove];
-            [jointToRemove invalidate];
-            jointToRemove = nil;
-            [ropeToRemove removeFromParent];
-            [_ropes removeObject:ropeToRemove];
-        }
+//        NSMutableArray *offScreenRopes = nil;
+//        
+//        for (Rope *rope in _ropes) {
+//            CGPoint ropeWorldPosition = [physicsNode convertToWorldSpace:rope.position];
+//            CGPoint ropeScreenPosition = [self convertToNodeSpace:ropeWorldPosition];
+//            if (ropeScreenPosition.x < (rope.contentSizeInPoints.width/2)) {
+//                if (!offScreenRopes) {
+//                    offScreenRopes = [NSMutableArray array];
+//                }
+//                [offScreenRopes addObject:rope];
+//            }
+//        }
+//        
+//        for (Rope *ropeToRemove in offScreenRopes) {
+//            CCPhysicsJoint *jointToRemove = ropeToRemove.physicsBody.joints.firstObject;
+//            [_topRopeJoints removeObject:jointToRemove];
+//            [jointToRemove invalidate];
+//            jointToRemove = nil;
+//            [ropeToRemove removeFromParent];
+//            [_ropes removeObject:ropeToRemove];
+//        }
     }
 }
 
@@ -247,11 +273,11 @@
 -(BOOL)ccPhysicsCollisionPostSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey rope:(CCNode *)rope {
     if (![rope.physicsBody.collisionMask  isEqual: @[]]) {
         rope.physicsBody.collisionMask = @[];
-        _currentRope = (Rope *)rope;
+        _currentRopeMonkeySeg = (Rope *)rope;
         _prevCurRope = _currentRope;
         _ropeTimer = 0;
         monkey.physicsBody.allowsRotation = FALSE;
-        _currentRope.physicsBody.allowsRotation = TRUE;
+        _currentRopeMonkeySeg.physicsBody.allowsRotation = TRUE;
         
         [animationManager runAnimationsForSequenceNamed:@"Default"];
     
@@ -260,12 +286,13 @@
             _ropeMonkeyJoint = nil;
         }
         
-        monkey.position = ccp(_currentRope.position.x, monkey.position.y);
-        _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:_currentRope.physicsBody bodyB:monkey.physicsBody anchorA:ccp(5,[_currentRope convertToNodeSpace:monkey.position].y)];
+        monkey.position = ccp(_currentRopeMonkeySeg.position.x, monkey.position.y);
+        _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:_currentRopeMonkeySeg.physicsBody bodyB:monkey.physicsBody anchorA:ccp(5,[_currentRopeMonkeySeg convertToNodeSpace:monkey.position].y)];
         
         physicsNode.position = ccp(physicsNode.position.x - ([physicsNode convertToWorldSpace:_monkey.position].x - _beforeCollisionX), physicsNode.position.y);
         
-        _monkey.rotation = 0.f;
+        monkey.rotation = 0.f;
+        monkey.color = _originalColor;
         
         _allowImpulse = TRUE;
     }

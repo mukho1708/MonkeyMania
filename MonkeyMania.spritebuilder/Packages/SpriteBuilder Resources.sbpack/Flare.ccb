@@ -47,6 +47,75 @@
 		<string></string>
 		<key>memberVarAssignmentType</key>
 		<integer>1</integer>
+		<key>physicsBody</key>
+		<dict>
+			<key>affectedByGravity</key>
+			<true/>
+			<key>allowsRotation</key>
+			<true/>
+			<key>bodyShape</key>
+			<integer>0</integer>
+			<key>collisionCategories</key>
+			<array>
+				<string>flare</string>
+			</array>
+			<key>collisionMask</key>
+			<array>
+				<string>monkey</string>
+			</array>
+			<key>collisionType</key>
+			<string>flare</string>
+			<key>cornerRadius</key>
+			<real>0.0</real>
+			<key>density</key>
+			<real>1</real>
+			<key>dynamic</key>
+			<false/>
+			<key>elasticity</key>
+			<real>0.30000001192092896</real>
+			<key>friction</key>
+			<real>0.30000001192092896</real>
+			<key>points</key>
+			<array>
+				<array>
+					<real>-30.822126388549805</real>
+					<real>-249.64852905273438</real>
+				</array>
+				<array>
+					<real>-32.863327026367188</real>
+					<real>405.22695922851562</real>
+				</array>
+				<array>
+					<real>26.214845657348633</real>
+					<real>405.3338623046875</real>
+				</array>
+				<array>
+					<real>29.150285720825195</real>
+					<real>-250.0567626953125</real>
+				</array>
+			</array>
+			<key>polygons</key>
+			<array>
+				<array>
+					<array>
+						<real>29.150285720825195</real>
+						<real>-250.0567626953125</real>
+					</array>
+					<array>
+						<real>26.214845657348633</real>
+						<real>405.3338623046875</real>
+					</array>
+					<array>
+						<real>-32.863327026367188</real>
+						<real>405.22695922851562</real>
+					</array>
+					<array>
+						<real>-30.822126388549805</real>
+						<real>-249.64852905273438</real>
+					</array>
+				</array>
+			</array>
+		</dict>
 		<key>properties</key>
 		<array>
 			<dict>
@@ -120,7 +189,7 @@
 				<key>type</key>
 				<string>Float</string>
 				<key>value</key>
-				<real>200</real>
+				<real>400</real>
 			</dict>
 			<dict>
 				<key>name</key>
@@ -128,7 +197,7 @@
 				<key>type</key>
 				<string>Float</string>
 				<key>value</key>
-				<real>2</real>
+				<real>-1</real>
 			</dict>
 			<dict>
 				<key>name</key>
@@ -136,7 +205,7 @@
 				<key>type</key>
 				<string>Integer</string>
 				<key>value</key>
-				<integer>1000</integer>
+				<integer>100</integer>
 			</dict>
 			<dict>
 				<key>name</key>
@@ -145,7 +214,7 @@
 				<string>FloatVar</string>
 				<key>value</key>
 				<array>
-					<real>3</real>
+					<real>12</real>
 					<real>0.25</real>
 				</array>
 			</dict>
@@ -156,7 +225,7 @@
 				<string>FloatVar</string>
 				<key>value</key>
 				<array>
-					<real>0.0</real>
+					<real>10</real>
 					<real>0.0</real>
 				</array>
 			</dict>
@@ -167,7 +236,7 @@
 				<string>FloatVar</string>
 				<key>value</key>
 				<array>
-					<real>100</real>
+					<real>50</real>
 					<real>10</real>
 				</array>
 			</dict>
@@ -201,7 +270,7 @@
 				<key>value</key>
 				<array>
 					<real>90</real>
-					<real>10</real>
+					<real>0.0</real>
 				</array>
 			</dict>
 			<dict>
