@@ -1,12 +1,12 @@
 #import "MainScene.h"
 
 @implementation MainScene {
+    // Declarations
     NSArray *_grounds;
     NSArray *_tops;
     Monkey *_monkey;
     NSMutableArray *_ropes;
     NSMutableArray *_currentRope;
-//    NSMutableArray *_topRopeJoints;
     CCPhysicsJoint *_ropeMonkeyJoint;
     CCAction *_followMonkey;
     BOOL _gameOver;
@@ -26,30 +26,18 @@
 
 - (void)didLoadFromCCB 
 {
-    // your code here
+    // Initialization
     self.userInteractionEnabled = TRUE;
     _restartButton.visible = FALSE;
     _grounds = @[ground1, ground2];
     _tops = @[top1, top2];
     _ropes = [NSMutableArray array];
-//    _topRopeJoints = [NSMutableArray array];
     _counter = 0;
     _ropeTimer = 0;
     _gameTimer = 0;
     
-    //Setup initial ropes
-//    for (int i = 0; i<4; i++) {
-//        _counter++;
-//        if (i == 0 || i== 3) {
-//            [self addRopeWithSize:1 atPosX:(i+1)*140 atTop:top1];
-//        }
-//        else
-//        {
-//            //_scene = 2;
-//            //[self addRopeWithSize:1 atPosX:(i+1)*100+arc4random_uniform(20) atTop:top2];
-//        }
-//        
-//    }
+    //Setup initial scenes
+    
     [self addRopeWithSize:[self getRopeSize] atPosX:[self getRopePosition] atTop:top1];
     _counter++;
     [self addRopeWithSize:[self getRopeSize] atPosX:0.85*top1.contentSize.width+arc4random_uniform(10) atTop:top1];
@@ -58,14 +46,18 @@
     _counter++;
     [self addRopeWithSize:[self getRopeSize] atPosX:top1.contentSize.width+0.85*top2.contentSize.width+arc4random_uniform(10) atTop:top2];
     
+    // Set current and previous rope
     _currentRope = [_ropes objectAtIndex:0];
     _prevCurRope = _currentRope;
+    
+    // Set the collision mask of the current rope, on which the monkey is located, to empty
     for (id obj in _currentRope) {
         if ([obj isKindOfClass:[CCNode class]]) {
             ((Rope *)obj).physicsBody.collisionMask = @[];
         }
     }
-    //_currentRope.physicsBody.collisionMask = @[];
+    
+    // Get the last segement of the first/current rope to which the monkey will be attached
     _currentRopeMonkeySeg = ((Rope *)_currentRope[[_currentRope count]-1]);
     
     _monkey = (Monkey*)[CCBReader load:@"Monkey"];
@@ -83,7 +75,7 @@
     
     physicsNode.collisionDelegate = self;
     // visualize physics bodies & joints
-    //physicsNode.debugDraw = TRUE;
+    physicsNode.debugDraw = TRUE;
     
 }
 
@@ -116,26 +108,23 @@
     for (int i = 0; i < size; i++) {
         Rope *_rope = (Rope*)[CCBReader load:@"Rope"];
         _rope.name = [NSString stringWithFormat:@"rope%d", _counter];
-        //_rope.rotation = 45+arc4random_uniform(30);
+        
         if (_counter!=1) {
             _rope.physicsBody.allowsRotation = FALSE;
         }
         _rope.physicsBody.affectedByGravity = TRUE;
-        //if (x <= 568) {
-        _rope.position = ccp(x,([top convertToWorldSpace:top.position].y/2+top.contentSize.height) + (i * _rope.contentSize.height));//[top convertToWorldSpace:[top convertToWorldSpace:[top convertToNodeSpace:ccp(x, 1)]]];
+        
+        _rope.position = ccp(x,([top convertToWorldSpace:top.position].y/2+top.contentSize.height) + (i * _rope.contentSize.height));
         
         [physicsNode addChild:_rope];
+        
         if (i==0) {
             CCPhysicsJoint *topRopeJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:top.physicsBody bodyB:_rope.physicsBody anchorA:[top convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(x,[top convertToWorldSpace:top.position].y/2+top.contentSize.height)]]];//ccp(x,1)];
             
             CCPhysicsJoint *topRopeRotaryJoint = [CCPhysicsJoint connectedRotaryLimitJointWithBodyA:top.physicsBody bodyB:_rope.physicsBody min:-1.3 max:1.3];
             
-            //CCPhysicsJoint *topRopeRotarySpringJoint = [CCPhysicsJoint connectedRotarySpringJointWithBodyA:top.physicsBody bodyB:_rope.physicsBody restAngle:0 stiffness:8.0 damping:0.5];
-            
-//            [_topRopeJoints addObject:topRopeJoint];
             [ropeParts addObject:topRopeJoint];
             [ropeParts addObject:topRopeRotaryJoint];
-            //[ropeParts addObject:topRopeRotarySpringJoint];
         }
         else
         {
@@ -143,11 +132,8 @@
             
             CCPhysicsJoint *interRopeRotaryJoint = [CCPhysicsJoint connectedRotaryLimitJointWithBodyA:((Rope *)ropeParts[[ropeParts count]-1]).physicsBody bodyB:_rope.physicsBody min:-.15 max:.15];
             
-            //CCPhysicsJoint *interRopeRotarySpringJoint = [CCPhysicsJoint connectedRotarySpringJointWithBodyA:((Rope *)ropeParts[[ropeParts count]-1]).physicsBody bodyB:_rope.physicsBody restAngle:0 stiffness:8.0 damping:0.8];
-            
             [ropeParts addObject:interRopeJoint];
             [ropeParts addObject:interRopeRotaryJoint];
-            //[ropeParts addObject:interRopeRotarySpringJoint];
         }
         
         [ropeParts addObject:_rope];
@@ -161,6 +147,7 @@
     CCParticleSystem* effect = (CCParticleSystem *)[CCBReader load:@"Flare"];
     effect.position = ccp(x,size);
     [effect resetSystem];
+    effect.physicsBody.sensor = YES;
     [physicsNode addChild:effect];
 }
 
@@ -193,90 +180,84 @@
 
 - (void)update:(CCTime)delta
 {
-    score.string = [NSString stringWithFormat:@"Score: %d", (int)(maxX-_beforeCollisionX)/10];
-    _gameTimer += delta;
-    if (_currentRope == _prevCurRope) {
-        _ropeTimer += delta;
-    }
-    if (_ropeTimer > 3) {
-        _monkey.color = [CCColor orangeColor];
-        if (_ropeTimer > 6) {
-            _monkey.color = [CCColor redColor];
-            if(_ropeTimer > 9) {
-                _monkey.color = [CCColor blackColor];
-                [_ropeMonkeyJoint invalidate];
-                _ropeMonkeyJoint = nil;
-//                CCPhysicsJoint* topRopeJoint;
-//                for (CCPhysicsJoint* joint in _currentRope.physicsBody.joints) {
-//                    if ([_topRopeJoints indexOfObject:joint] != -1) {
-//                        topRopeJoint = joint;
-//                    }
-//                }
-//                [topRopeJoint invalidate];
-//                topRopeJoint = nil;
-                _allowImpulse = FALSE;
+    if (!_gameOver) {
+        score.string = [NSString stringWithFormat:@"Score: %d", (int)(maxX-_beforeCollisionX)/10];
+        _gameTimer += delta;
+        if (_currentRope == _prevCurRope) {
+            _ropeTimer += delta;
+        }
+        if (_ropeTimer > 3) {
+            _monkey.color = [CCColor orangeColor];
+            if (_ropeTimer > 6) {
+                _monkey.color = [CCColor redColor];
+                if(_ropeTimer > 9) {
+                    _monkey.color = [CCColor blackColor];
+                    [_ropeMonkeyJoint invalidate];
+                    _ropeMonkeyJoint = nil;
+                    _allowImpulse = FALSE;
+                }
             }
         }
-    }
-    if(_monkey.position.x>maxX && _ropeMonkeyJoint == nil)
-    {
-        maxX = _monkey.position.x;
+        if(_monkey.position.x>maxX && _ropeMonkeyJoint == nil)
+        {
+            maxX = _monkey.position.x;
 
-        physicsNode.position = ccp(physicsNode.position.x - (_monkey.physicsBody.velocity.x * delta), physicsNode.position.y);
-        
-        // loop the ground
-        for (CCNode *ground in _grounds) {
-            // get the world position of the ground
-            CGPoint groundWorldPosition = [physicsNode convertToWorldSpace:ground.position];
-            // get the screen position of the ground
-            CGPoint groundScreenPosition = [self convertToNodeSpace:groundWorldPosition];
+            physicsNode.position = ccp(physicsNode.position.x - (_monkey.physicsBody.velocity.x * delta), physicsNode.position.y);
             
-            // if the left corner is one complete width off the screen, move it to the right
-            if (groundScreenPosition.x <= (-1 * ground.contentSize.width)) {
-                ground.position = ccp(ground.position.x + 2 * ground.contentSize.width, ground.position.y);
-            }
-        }
-        
-        // loop the top
-        for (CCNode *top in _tops) {
-            // get the world position of the top
-            CGPoint topWorldPosition = [physicsNode convertToWorldSpace:top.position];
-            // get the screen position of the top
-            CGPoint topScreenPosition = [self convertToNodeSpace:topWorldPosition];
-            
-            // if the left corner is one complete width off the screen, move it to the right
-            if (topScreenPosition.x <= (-1 * top.contentSize.width)) {
-                top.position = ccp(top.position.x + 2 * top.contentSize.width, top.position.y);
-                [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.15*top.contentSize.width+arc4random_uniform(10) atTop:top];
-                _counter++;
-                [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.85*top.contentSize.width+arc4random_uniform(10) atTop:top];
-                [self addFlareWithSizeY:250 atPosX:top.position.x+300 atTop:top];
-            }
-        }
-        
-        NSMutableArray *offScreenRopes = nil;
-        
-        for (NSMutableArray *rope in _ropes) {
-            CGPoint ropeWorldPosition = [physicsNode convertToWorldSpace:((Rope *)rope[2]).position];
-            CGPoint ropeScreenPosition = [self convertToNodeSpace:ropeWorldPosition];
-            if (ropeScreenPosition.x < (((Rope *)rope[2]).contentSizeInPoints.width/2)) {
-                if (!offScreenRopes) {
-                    offScreenRopes = [NSMutableArray array];
+            // loop the ground
+            for (CCNode *ground in _grounds) {
+                // get the world position of the ground
+                CGPoint groundWorldPosition = [physicsNode convertToWorldSpace:ground.position];
+                // get the screen position of the ground
+                CGPoint groundScreenPosition = [self convertToNodeSpace:groundWorldPosition];
+                
+                // if the left corner is one complete width off the screen, move it to the right
+                if (groundScreenPosition.x <= (-1 * ground.contentSize.width)) {
+                    ground.position = ccp(ground.position.x + 2 * ground.contentSize.width, ground.position.y);
                 }
-                [offScreenRopes addObject:rope];
             }
-        }
+            
+            // loop the top
+            for (CCNode *top in _tops) {
+                // get the world position of the top
+                CGPoint topWorldPosition = [physicsNode convertToWorldSpace:top.position];
+                // get the screen position of the top
+                CGPoint topScreenPosition = [self convertToNodeSpace:topWorldPosition];
+                
+                // if the left corner is one complete width off the screen, move it to the right
+                if (topScreenPosition.x <= (-1 * top.contentSize.width)) {
+                    top.position = ccp(top.position.x + 2 * top.contentSize.width, top.position.y);
+                    [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.15*top.contentSize.width+arc4random_uniform(10) atTop:top];
+                    _counter++;
+                    [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.85*top.contentSize.width+arc4random_uniform(10) atTop:top];
+                    [self addFlareWithSizeY:250 atPosX:top.position.x+300 atTop:top];
+                }
+            }
+            
+            NSMutableArray *offScreenRopes = nil;
+            
+            for (NSMutableArray *rope in _ropes) {
+                CGPoint ropeWorldPosition = [physicsNode convertToWorldSpace:((Rope *)rope[2]).position];
+                CGPoint ropeScreenPosition = [self convertToNodeSpace:ropeWorldPosition];
+                if (ropeScreenPosition.x < (((Rope *)rope[2]).contentSizeInPoints.width/2)) {
+                    if (!offScreenRopes) {
+                        offScreenRopes = [NSMutableArray array];
+                    }
+                    [offScreenRopes addObject:rope];
+                }
+            }
 
-        for (NSMutableArray *ropeToRemove in offScreenRopes) {
-            for (id obj in ropeToRemove) {
-                if ([obj isKindOfClass:[CCNode class]]) {
-                    [((Rope *)obj) removeFromParent];
+            for (NSMutableArray *ropeToRemove in offScreenRopes) {
+                for (id obj in ropeToRemove) {
+                    if ([obj isKindOfClass:[CCNode class]]) {
+                        [((Rope *)obj) removeFromParent];
+                    }
+                    if([obj isKindOfClass:[CCPhysicsJoint class]]){
+                        [((CCPhysicsJoint *)obj) invalidate];
+                    }
                 }
-                if([obj isKindOfClass:[CCPhysicsJoint class]]){
-                    [((CCPhysicsJoint *)obj) invalidate];
-                }
+                [_ropes removeObject:ropeToRemove];
             }
-            [_ropes removeObject:ropeToRemove];
         }
     }
 }
@@ -350,6 +331,13 @@
         monkey.color = _originalColor;
         
         _allowImpulse = TRUE;
+    }
+    return TRUE;
+}
+
+-(BOOL)ccPhysicsCollisionPreSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey flare:(CCParticleSystem *)flare {
+    if (flare.particleCount == 0) {
+        return TRUE;
     }
     return TRUE;
 }

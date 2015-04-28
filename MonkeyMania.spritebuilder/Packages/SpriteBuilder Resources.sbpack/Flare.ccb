@@ -60,9 +60,7 @@
 				<string>flare</string>
 			</array>
 			<key>collisionMask</key>
-			<array>
-				<string>monkey</string>
-			</array>
+			<array/>
 			<key>collisionType</key>
 			<string>flare</string>
 			<key>cornerRadius</key>
@@ -78,40 +76,40 @@
 			<key>points</key>
 			<array>
 				<array>
-					<real>-30.822126388549805</real>
-					<real>-249.64852905273438</real>
+					<real>-5.11669921875</real>
+					<real>-250.3359375</real>
 				</array>
 				<array>
-					<real>-32.863327026367188</real>
-					<real>405.22695922851562</real>
+					<real>-10.18408203125</real>
+					<real>320.72509765625</real>
 				</array>
 				<array>
-					<real>26.214845657348633</real>
-					<real>405.3338623046875</real>
+					<real>10.48046875</real>
+					<real>320.75830078125</real>
 				</array>
 				<array>
-					<real>29.150285720825195</real>
-					<real>-250.0567626953125</real>
+					<real>5.00830078125</real>
+					<real>-250.384765625</real>
 				</array>
 			</array>
 			<key>polygons</key>
 			<array>
 				<array>
 					<array>
-						<real>29.150285720825195</real>
-						<real>-250.0567626953125</real>
+						<real>5.00830078125</real>
+						<real>-250.384765625</real>
 					</array>
 					<array>
-						<real>26.214845657348633</real>
-						<real>405.3338623046875</real>
+						<real>10.48046875</real>
+						<real>320.75830078125</real>
 					</array>
 					<array>
-						<real>-32.863327026367188</real>
-						<real>405.22695922851562</real>
+						<real>-10.18408203125</real>
+						<real>320.72509765625</real>
 					</array>
 					<array>
-						<real>-30.822126388549805</real>
-						<real>-249.64852905273438</real>
+						<real>-5.11669921875</real>
+						<real>-250.3359375</real>
 					</array>
 				</array>
 			</array>
@@ -179,7 +177,7 @@
 				<string>Point</string>
 				<key>value</key>
 				<array>
-					<real>10</real>
+					<real>2</real>
 					<real>250</real>
 				</array>
 			</dict>

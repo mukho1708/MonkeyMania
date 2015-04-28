@@ -274,6 +274,7 @@
 				<string>rope</string>
 				<string>ground</string>
 				<string>top</string>
+				<string>flare</string>
 			</array>
 			<key>collisionType</key>
 			<string>monkey</string>
