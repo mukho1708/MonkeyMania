@@ -10,7 +10,7 @@
 		<false/>
 	</dict>
 	<key>UUID</key>
-	<integer>302</integer>
+	<integer>310</integer>
 	<key>centeredOrigin</key>
 	<false/>
 	<key>currentResolution</key>
@@ -185,8 +185,6 @@
 						</array>
 					</dict>
 				</array>
-				<key>selected</key>
-				<true/>
 			</dict>
 		</array>
 		<key>customClass</key>
@@ -218,7 +216,7 @@
 			<key>cornerRadius</key>
 			<real>0.0</real>
 			<key>density</key>
-			<real>1</real>
+			<real>0.5</real>
 			<key>dynamic</key>
 			<true/>
 			<key>elasticity</key>
@@ -236,11 +234,11 @@
 					<real>-65</real>
 				</array>
 				<array>
-					<real>10</real>
+					<real>5</real>
 					<real>-65</real>
 				</array>
 				<array>
-					<real>10</real>
+					<real>5</real>
 					<real>0.0</real>
 				</array>
 			</array>
@@ -256,11 +254,11 @@
 						<real>-65</real>
 					</array>
 					<array>
-						<real>10</real>
+						<real>5</real>
 						<real>-65</real>
 					</array>
 					<array>
-						<real>10</real>
+						<real>5</real>
 						<real>0.0</real>
 					</array>
 				</array>
@@ -328,6 +326,8 @@
 				</array>
 			</dict>
 		</array>
+		<key>selected</key>
+		<true/>
 	</dict>
 	<key>notes</key>
 	<array/>

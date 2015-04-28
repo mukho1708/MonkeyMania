@@ -181,7 +181,7 @@
     _ropeMonkeyJoint = nil;
     
     if (_allowImpulse) {
-        [_monkey.physicsBody applyImpulse:ccp(1800, 300)];
+        [_monkey.physicsBody applyImpulse:ccp(800, 100)];
         _allowImpulse = FALSE;
     
         animationManager = _monkey.animationManager;
