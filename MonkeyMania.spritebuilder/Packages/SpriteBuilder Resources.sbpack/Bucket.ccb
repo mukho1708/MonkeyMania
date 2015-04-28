@@ -16,7 +16,7 @@
 	<key>currentResolution</key>
 	<integer>0</integer>
 	<key>currentSequenceId</key>
-	<integer>1</integer>
+	<integer>0</integer>
 	<key>docDimensionsType</key>
 	<integer>1</integer>
 	<key>fileType</key>
@@ -171,7 +171,7 @@
 						<key>type</key>
 						<string>Degrees</string>
 						<key>value</key>
-						<real>120</real>
+						<real>0.0</real>
 					</dict>
 					<dict>
 						<key>name</key>
@@ -217,8 +217,6 @@
 						<array/>
 					</dict>
 				</array>
-				<key>selected</key>
-				<true/>
 				<key>seqExpanded</key>
 				<true/>
 			</dict>
@@ -231,6 +229,42 @@
 		<string></string>
 		<key>memberVarAssignmentType</key>
 		<integer>1</integer>
+		<key>physicsBody</key>
+		<dict>
+			<key>affectedByGravity</key>
+			<true/>
+			<key>allowsRotation</key>
+			<true/>
+			<key>bodyShape</key>
+			<integer>1</integer>
+			<key>collisionCategories</key>
+			<array>
+				<string>bucket</string>
+			</array>
+			<key>collisionMask</key>
+			<array/>
+			<key>collisionType</key>
+			<string>bucket</string>
+			<key>cornerRadius</key>
+			<real>16</real>
+			<key>density</key>
+			<real>1</real>
+			<key>dynamic</key>
+			<false/>
+			<key>elasticity</key>
+			<real>0.30000001192092896</real>
+			<key>friction</key>
+			<real>0.30000001192092896</real>
+			<key>points</key>
+			<array>
+				<array>
+					<real>0.0</real>
+					<real>0.0</real>
+				</array>
+			</array>
+			<key>polygons</key>
+			<array/>
+		</dict>
 		<key>properties</key>
 		<array>
 			<dict>
@@ -293,6 +327,8 @@
 				</array>
 			</dict>
 		</array>
+		<key>selected</key>
+		<true/>
 	</dict>
 	<key>notes</key>
 	<array/>
@@ -384,7 +420,7 @@
 			<key>offset</key>
 			<real>0.0</real>
 			<key>position</key>
-			<real>0.40000000596046448</real>
+			<real>0.0</real>
 			<key>resolution</key>
 			<real>30</real>
 			<key>scale</key>

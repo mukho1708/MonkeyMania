@@ -275,6 +275,7 @@
 				<string>ground</string>
 				<string>top</string>
 				<string>flare</string>
+				<string>bucket</string>
 			</array>
 			<key>collisionType</key>
 			<string>monkey</string>

@@ -22,6 +22,11 @@
     CCColor *_originalColor;
     Rope *_currentRopeMonkeySeg;
     int _lastRopeSize;
+    float _artifactXRange;
+    float _artifactXInterval;
+    float _ropeSegmentLength;
+    NSMutableArray *_flares;
+    BOOL _firstFlareOn;
 }
 
 - (void)didLoadFromCCB 
@@ -35,17 +40,22 @@
     _counter = 0;
     _ropeTimer = 0;
     _gameTimer = 0;
+    _artifactXRange = ([[CCDirector sharedDirector] viewSize].width - 260)/2;
+    _artifactXInterval = _artifactXRange/3;
+    _ropeSegmentLength = 65;
+    _flares = [NSMutableArray array];
+    _firstFlareOn = FALSE;
     
     //Setup initial scenes
     
-    [self addRopeWithSize:[self getRopeSize] atPosX:[self getRopePosition] atTop:top1];
-    _counter++;
-    [self addRopeWithSize:[self getRopeSize] atPosX:0.85*top1.contentSize.width+arc4random_uniform(10) atTop:top1];
-    _counter++;
-    [self addRopeWithSize:[self getRopeSize] atPosX:top1.contentSize.width+0.15*top2.contentSize.width+arc4random_uniform(10) atTop:top2];
-    _counter++;
-    [self addRopeWithSize:[self getRopeSize] atPosX:top1.contentSize.width+0.85*top2.contentSize.width+arc4random_uniform(10) atTop:top2];
+    [self setupSceneWithTop:top1];
+    [self setupSceneWithTop:top2];
     
+//    [self addRopeWithSize:[self getRopeSize] atPosX:[self getRopePosition] atTop:top1];
+//    [self addRopeWithSize:[self getRopeSize] atPosX:0.85*top1.contentSize.width+arc4random_uniform(10) atTop:top1];
+//    [self addRopeWithSize:[self getRopeSize] atPosX:top1.contentSize.width+0.15*top2.contentSize.width+arc4random_uniform(10) atTop:top2];
+//    [self addRopeWithSize:[self getRopeSize] atPosX:top1.contentSize.width+0.85*top2.contentSize.width+arc4random_uniform(10) atTop:top2];
+//    
     // Set current and previous rope
     _currentRope = [_ropes objectAtIndex:0];
     _prevCurRope = _currentRope;
@@ -75,30 +85,72 @@
     
     physicsNode.collisionDelegate = self;
     // visualize physics bodies & joints
-    physicsNode.debugDraw = TRUE;
+    //physicsNode.debugDraw = TRUE;
+    
+}
+
+-(void) setupSceneWithTop:(CCNode *)top
+{
+    CCNode *prevTop;
+    if (top == top1)
+        prevTop = top2;
+    else
+        prevTop = top1;
+    
+    if (_counter == 0) {
+        [self addRopeWithSize:[self getRopeSize] atPosX:_ropeSegmentLength*2 -5 + arc4random_uniform(10) atTop:top1];
+    }
+    else{
+        if ((_gameTimer < 30 && (arc4random_uniform(2) == 1)) || (_gameTimer >= 30 && _gameTimer < 90 && (arc4random_uniform(3) == 1)) || (_gameTimer > 90 && (arc4random_uniform(5) == 1))) {
+            [self addBucketAtPosX:top.position.x + _artifactXInterval - (_artifactXRange - _ropeSegmentLength*2) - 5 + arc4random_uniform(10) atTop:top];
+        }
+        if ((!_firstFlareOn) || (_gameTimer >=30 && _gameTimer < 90 && arc4random_uniform(2)==1) || (_gameTimer >= 90))
+        {
+            [self addFlareWithSizeY:250 atPosX:top.position.x + _artifactXInterval*2 - (_artifactXRange - _ropeSegmentLength*2) - 5 + arc4random_uniform(10) atTop:top];
+        }
+        [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x + _ropeSegmentLength*2 - 5 + arc4random_uniform(10) atTop:top];
+    }
+    if (_gameTimer >= 90 || arc4random_uniform(2) == 1) {
+        [self addFlareWithSizeY:250 atPosX:top.position.x + _ropeSegmentLength*4 - 5 + arc4random_uniform(10) atTop:top];
+        _firstFlareOn = TRUE;
+    }
+    else
+    {
+        _firstFlareOn = FALSE;
+    }
+    if ((_gameTimer < 30 && (arc4random_uniform(2) == 1)) || (_gameTimer >= 30 && _gameTimer < 90 && (arc4random_uniform(3) == 1)) || (_gameTimer > 90 && (arc4random_uniform(5) == 1))) {
+        [self addBucketAtPosX:top.position.x + _ropeSegmentLength*4 + _artifactXInterval - 5 + arc4random_uniform(10) atTop:top];
+    }
+    if ((!_firstFlareOn) || (_gameTimer >=30 && _gameTimer < 90 && arc4random_uniform(2)==1) || (_gameTimer >= 90) ) {
+        [self addFlareWithSizeY:250 atPosX:top.position.x + _ropeSegmentLength*4 + _artifactXInterval*2 - 5 + arc4random_uniform(10) atTop:top];
+    }
+    [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x + _ropeSegmentLength*4 + _artifactXRange - 5 + arc4random_uniform(10) atTop:top];
+    if (_gameTimer >= 90 || arc4random_uniform(2) == 1) {
+        [self addFlareWithSizeY:250 atPosX:top.position.x + _ropeSegmentLength*6 + _artifactXRange - 5 + arc4random_uniform(10) atTop:top];
+        _firstFlareOn = TRUE;
+    }
+    else
+    {
+        _firstFlareOn = FALSE;
+    }
     
 }
 
 -(int) getRopeSize
 {
     _counter++;
-    int ropeSize = 1 + arc4random_uniform(3);
+    int ropeSize;
+    if (_gameTimer < 30) {
+        ropeSize = 2;
+    }
+    else if (_gameTimer < 90) {
+        ropeSize = 2 + arc4random_uniform(2);
+    }
+    else {
+        ropeSize = 1 + arc4random_uniform(3);
+    }
     _lastRopeSize = ropeSize;
     return ropeSize;
-}
-
--(float) getRopePosition
-{
-    float ropePosition;
-    if (_counter == 1)
-    {
-        ropePosition = _lastRopeSize*65 + arc4random_uniform(10);
-    }
-    else
-    {
-        ropePosition = 1.0f;
-    }
-    return ropePosition;
 }
 
 -(void) addRopeWithSize:(int)size atPosX:(float)x atTop:(CCNode *)top
@@ -149,7 +201,17 @@
     [effect resetSystem];
     effect.physicsBody.sensor = YES;
     [physicsNode addChild:effect];
+    [_flares addObject:effect];
 }
+
+-(void) addBucketAtPosX:(float)x atTop:(CCNode*)top
+{
+    CCNode* bucket = (CCNode *)[CCBReader load:@"Bucket"];
+    bucket.position = ccp(x,0.75*[[CCDirector sharedDirector] viewSize].height);
+    bucket.physicsBody.sensor = YES;
+    [physicsNode addChild:bucket];
+}
+
 
 // called on every touch in this scene
 -(void) touchBegan:(CCTouch *)touch withEvent:(CCTouchEvent *)event
@@ -168,7 +230,7 @@
     _ropeMonkeyJoint = nil;
     
     if (_allowImpulse) {
-        [_monkey.physicsBody applyImpulse:ccp(800, 100)];
+        [_monkey.physicsBody applyImpulse:ccp(800, 150)];
         _allowImpulse = FALSE;
     
         animationManager = _monkey.animationManager;
@@ -227,10 +289,11 @@
                 // if the left corner is one complete width off the screen, move it to the right
                 if (topScreenPosition.x <= (-1 * top.contentSize.width)) {
                     top.position = ccp(top.position.x + 2 * top.contentSize.width, top.position.y);
-                    [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.15*top.contentSize.width+arc4random_uniform(10) atTop:top];
-                    _counter++;
-                    [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.85*top.contentSize.width+arc4random_uniform(10) atTop:top];
-                    [self addFlareWithSizeY:250 atPosX:top.position.x+300 atTop:top];
+//                    [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.15*top.contentSize.width+arc4random_uniform(10) atTop:top];
+//                    _counter++;
+//                    [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.85*top.contentSize.width+arc4random_uniform(10) atTop:top];
+//                    [self addFlareWithSizeY:250 atPosX:top.position.x+300 atTop:top];
+                    [self setupSceneWithTop:top];
                 }
             }
             
@@ -341,6 +404,13 @@
     }
     return TRUE;
 }
+
+-(BOOL)ccPhysicsCollisionPreSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey bucket:(CCNode *)bucket {
+    CCAnimationManager *bucketAnimationManager = bucket.animationManager;
+    [bucketAnimationManager runAnimationsForSequenceNamed:@"Tilt Bucket"];
+    return TRUE;
+}
+
 
 -(BOOL)ccPhysicsCollisionBegin:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey ground:(CCNode *)ground {
     [self gameOver];
