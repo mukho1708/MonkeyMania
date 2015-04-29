@@ -211,8 +211,9 @@
     CCParticleSystem* effect = (CCParticleSystem *)[CCBReader load:@"Flare"];
     effect.position = ccp(x,size);
     effect.physicsBody.sensor = YES;
-    [effect resetSystem];
-    //effect.paused = TRUE;
+    if (_bucketActive) {
+        [effect stopSystem];
+    }
     [physicsNode addChild:effect];
     [_flares addObject:effect];
 }
@@ -265,7 +266,11 @@
         }
         if (_bucketTimer < 0) {
             _bucketTimer = 0;
-            fire_effect.paused = FALSE;
+            _bucketActive = FALSE;
+            [fire_effect resetSystem];
+            for (CCParticleSystem *flare in _flares) {
+                [flare resetSystem];
+            }
         }
         if (_currentRope == _prevCurRope) {
             _ropeTimer += delta;
@@ -496,8 +501,11 @@
         [physicsNode addChild:waterEffect];
         [_waterEffects addObject:waterEffect];
         _bucketActive = TRUE;
-        _bucketTimer = 5;
-        fire_effect.paused = TRUE;
+        _bucketTimer = 10;
+        [fire_effect stopSystem];
+        for (CCParticleSystem *flare in _flares) {
+            [flare stopSystem];
+        }
         bucket.physicsBody.collisionMask = @[];
         int bonus = _gameTimer < 30 ? 500 : _gameTimer < 90 ? 750 : 1000;
         _bonus += bonus;
