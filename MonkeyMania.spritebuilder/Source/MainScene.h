@@ -10,5 +10,6 @@
     CCNode* top2;
     CCNode* ground2;
     CCLabelTTF* score;
+    CCParticleSystem* fire_effect;
 }
 @end

@@ -10,7 +10,7 @@
 		<false/>
 	</dict>
 	<key>UUID</key>
-	<integer>137</integer>
+	<integer>147</integer>
 	<key>centeredOrigin</key>
 	<false/>
 	<key>currentResolution</key>
@@ -1289,7 +1289,7 @@
 				<key>displayName</key>
 				<string>CCBFile</string>
 				<key>memberVarAssignmentName</key>
-				<string></string>
+				<string>fire_effect</string>
 				<key>memberVarAssignmentType</key>
 				<integer>1</integer>
 				<key>properties</key>
@@ -1646,8 +1646,16 @@
 							<real>0.87000000476837158</real>
 							<real>0.13686718046665192</real>
 							<real>0.17776244878768921</real>
-							<real>1</real>
+							<real>0.75</real>
 						</array>
+					</dict>
+					<dict>
+						<key>name</key>
+						<string>startOpacity</string>
+						<key>type</key>
+						<string>Float</string>
+						<key>value</key>
+						<real>0.75</real>
 					</dict>
 					<dict>
 						<key>name</key>
@@ -1659,8 +1667,16 @@
 							<real>0.80000001192092896</real>
 							<real>0.73401206731796265</real>
 							<real>0.17892730236053467</real>
-							<real>1</real>
+							<real>0.75</real>
 						</array>
+					</dict>
+					<dict>
+						<key>name</key>
+						<string>endOpacity</string>
+						<key>type</key>
+						<string>Float</string>
+						<key>value</key>
+						<real>0.75</real>
 					</dict>
 					<dict>
 						<key>name</key>

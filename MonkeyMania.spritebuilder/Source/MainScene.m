@@ -26,7 +26,13 @@
     float _artifactXInterval;
     float _ropeSegmentLength;
     NSMutableArray *_flares;
-    BOOL _firstFlareOn;
+    NSMutableArray *_buckets;
+    NSMutableArray *_waterEffects;
+    BOOL _sceneFirstFlareOn;
+    BOOL _bucketActive;
+    float _bucketTimer;
+    int _score;
+    int _bonus;
 }
 
 - (void)didLoadFromCCB 
@@ -44,7 +50,13 @@
     _artifactXInterval = _artifactXRange/3;
     _ropeSegmentLength = 65;
     _flares = [NSMutableArray array];
-    _firstFlareOn = FALSE;
+    _buckets = [NSMutableArray array];
+    _waterEffects = [NSMutableArray array];
+    _sceneFirstFlareOn = FALSE;
+    _bucketActive = FALSE;
+    _bucketTimer = 0;
+    _score = 0;
+    _bonus = 0;
     
     //Setup initial scenes
     
@@ -104,34 +116,34 @@
         if ((_gameTimer < 30 && (arc4random_uniform(2) == 1)) || (_gameTimer >= 30 && _gameTimer < 90 && (arc4random_uniform(3) == 1)) || (_gameTimer > 90 && (arc4random_uniform(5) == 1))) {
             [self addBucketAtPosX:top.position.x + _artifactXInterval - (_artifactXRange - _ropeSegmentLength*2) - 5 + arc4random_uniform(10) atTop:top];
         }
-        if ((!_firstFlareOn) || (_gameTimer >=30 && _gameTimer < 90 && arc4random_uniform(2)==1) || (_gameTimer >= 90))
+        if ((!_sceneFirstFlareOn) || (_gameTimer >=30 && _gameTimer < 90 && arc4random_uniform(2)==1) || (_gameTimer >= 90))
         {
             [self addFlareWithSizeY:250 atPosX:top.position.x + _artifactXInterval*2 - (_artifactXRange - _ropeSegmentLength*2) - 5 + arc4random_uniform(10) atTop:top];
         }
         [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x + _ropeSegmentLength*2 - 5 + arc4random_uniform(10) atTop:top];
     }
     if (_gameTimer >= 90 || arc4random_uniform(2) == 1) {
-        [self addFlareWithSizeY:250 atPosX:top.position.x + _ropeSegmentLength*4 - 5 + arc4random_uniform(10) atTop:top];
-        _firstFlareOn = TRUE;
+        [self addFlareWithSizeY:250 atPosX:top.position.x + _ropeSegmentLength*4 + arc4random_uniform(10) atTop:top];
+        _sceneFirstFlareOn = TRUE;
     }
     else
     {
-        _firstFlareOn = FALSE;
+        _sceneFirstFlareOn = FALSE;
     }
     if ((_gameTimer < 30 && (arc4random_uniform(2) == 1)) || (_gameTimer >= 30 && _gameTimer < 90 && (arc4random_uniform(3) == 1)) || (_gameTimer > 90 && (arc4random_uniform(5) == 1))) {
         [self addBucketAtPosX:top.position.x + _ropeSegmentLength*4 + _artifactXInterval - 5 + arc4random_uniform(10) atTop:top];
     }
-    if ((!_firstFlareOn) || (_gameTimer >=30 && _gameTimer < 90 && arc4random_uniform(2)==1) || (_gameTimer >= 90) ) {
+    if ((!_sceneFirstFlareOn) || (_gameTimer >=30 && _gameTimer < 90 && arc4random_uniform(2)==1) || (_gameTimer >= 90) ) {
         [self addFlareWithSizeY:250 atPosX:top.position.x + _ropeSegmentLength*4 + _artifactXInterval*2 - 5 + arc4random_uniform(10) atTop:top];
     }
     [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x + _ropeSegmentLength*4 + _artifactXRange - 5 + arc4random_uniform(10) atTop:top];
     if (_gameTimer >= 90 || arc4random_uniform(2) == 1) {
-        [self addFlareWithSizeY:250 atPosX:top.position.x + _ropeSegmentLength*6 + _artifactXRange - 5 + arc4random_uniform(10) atTop:top];
-        _firstFlareOn = TRUE;
+        [self addFlareWithSizeY:250 atPosX:top.position.x + _ropeSegmentLength*6 + _artifactXRange + arc4random_uniform(10) atTop:top];
+        _sceneFirstFlareOn = TRUE;
     }
     else
     {
-        _firstFlareOn = FALSE;
+        _sceneFirstFlareOn = FALSE;
     }
     
 }
@@ -198,8 +210,9 @@
 {
     CCParticleSystem* effect = (CCParticleSystem *)[CCBReader load:@"Flare"];
     effect.position = ccp(x,size);
-    [effect resetSystem];
     effect.physicsBody.sensor = YES;
+    [effect resetSystem];
+    //effect.paused = TRUE;
     [physicsNode addChild:effect];
     [_flares addObject:effect];
 }
@@ -210,6 +223,7 @@
     bucket.position = ccp(x,0.75*[[CCDirector sharedDirector] viewSize].height);
     bucket.physicsBody.sensor = YES;
     [physicsNode addChild:bucket];
+    [_buckets addObject:bucket];
 }
 
 
@@ -243,8 +257,16 @@
 - (void)update:(CCTime)delta
 {
     if (!_gameOver) {
-        score.string = [NSString stringWithFormat:@"Score: %d", (int)(maxX-_beforeCollisionX)/10];
+        _score = (int)(maxX - _beforeCollisionX)/10;
+        score.string = [NSString stringWithFormat:@"Score: %d", _score+_bonus];
         _gameTimer += delta;
+        if (_bucketActive) {
+            _bucketTimer -= delta;
+        }
+        if (_bucketTimer < 0) {
+            _bucketTimer = 0;
+            fire_effect.paused = FALSE;
+        }
         if (_currentRope == _prevCurRope) {
             _ropeTimer += delta;
         }
@@ -289,14 +311,12 @@
                 // if the left corner is one complete width off the screen, move it to the right
                 if (topScreenPosition.x <= (-1 * top.contentSize.width)) {
                     top.position = ccp(top.position.x + 2 * top.contentSize.width, top.position.y);
-//                    [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.15*top.contentSize.width+arc4random_uniform(10) atTop:top];
-//                    _counter++;
-//                    [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x+0.85*top.contentSize.width+arc4random_uniform(10) atTop:top];
-//                    [self addFlareWithSizeY:250 atPosX:top.position.x+300 atTop:top];
+                    // Setup the new scene
                     [self setupSceneWithTop:top];
                 }
             }
             
+            // Remove offscreen ropes
             NSMutableArray *offScreenRopes = nil;
             
             for (NSMutableArray *rope in _ropes) {
@@ -320,6 +340,65 @@
                     }
                 }
                 [_ropes removeObject:ropeToRemove];
+            }
+            
+            // Remove offscreen flares
+            NSMutableArray *offScreenFlares = nil;
+            
+            for (CCParticleSystem *flare in _flares) {
+                CGPoint flareWorldPosition = [physicsNode convertToWorldSpace:flare.position];
+                CGPoint flareScreenPosition = [self convertToNodeSpace:flareWorldPosition];
+                CGPoint monkeyWorldPosition = [physicsNode convertToWorldSpace:_monkey.position];
+                CGPoint monkeyScreenPosition = [self convertToNodeSpace:monkeyWorldPosition];
+                if (flareScreenPosition.x+flare.posVar.x < monkeyScreenPosition.x) {
+                    if (!offScreenFlares) {
+                        offScreenFlares = [NSMutableArray array];
+                    }
+                    [offScreenFlares addObject:flare];
+                }
+            }
+            
+            for (CCParticleSystem *flareToRemove in offScreenFlares) {
+                [flareToRemove removeFromParent];
+                [_flares removeObject:flareToRemove];
+            }
+            
+            // Remove offscreen buckets
+            NSMutableArray *offScreenBuckets = nil;
+            
+            for (CCNode *bucket in _buckets) {
+                CGPoint bucketWorldPosition = [physicsNode convertToWorldSpace:bucket.position];
+                CGPoint bucketScreenPosition = [self convertToNodeSpace:bucketWorldPosition];
+                if (bucketScreenPosition.x < ((CCSprite *)bucket.children.firstObject).contentSize.width/2) {
+                    if (!offScreenBuckets) {
+                        offScreenBuckets = [NSMutableArray array];
+                    }
+                    [offScreenBuckets addObject:bucket];
+                }
+            }
+            
+            for (CCParticleSystem *bucketToRemove in offScreenBuckets) {
+                [bucketToRemove removeFromParent];
+                [_buckets removeObject:bucketToRemove];
+            }
+            
+            // Remove offscreen waterEffects
+            NSMutableArray *offScreenWaterEffects = nil;
+            
+            for (CCParticleSystem *waterEffect in _waterEffects) {
+                CGPoint waterEffectWorldPosition = [physicsNode convertToWorldSpace:waterEffect.position];
+                CGPoint waterEffectScreenPosition = [self convertToNodeSpace:waterEffectWorldPosition];
+                if (waterEffectScreenPosition.x < waterEffect.posVar.x) {
+                    if (!offScreenWaterEffects) {
+                        offScreenWaterEffects = [NSMutableArray array];
+                    }
+                    [offScreenWaterEffects addObject:waterEffect];
+                }
+            }
+            
+            for (CCParticleSystem *waterEffectToRemove in offScreenWaterEffects) {
+                [waterEffectToRemove removeFromParent];
+                [_waterEffects removeObject:waterEffectToRemove];
             }
         }
     }
@@ -402,12 +481,27 @@
     if (flare.particleCount == 0) {
         return TRUE;
     }
+//    [self gameOver];
     return TRUE;
 }
 
--(BOOL)ccPhysicsCollisionPreSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey bucket:(CCNode *)bucket {
-    CCAnimationManager *bucketAnimationManager = bucket.animationManager;
-    [bucketAnimationManager runAnimationsForSequenceNamed:@"Tilt Bucket"];
+-(BOOL)ccPhysicsCollisionBegin:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey bucket:(CCNode *)bucket {
+    if(![bucket.physicsBody.collisionMask  isEqual: @[]])
+    {
+        CCAnimationManager *bucketAnimationManager = bucket.animationManager;
+        [bucketAnimationManager runAnimationsForSequenceNamed:@"Tilt Bucket"];
+        CCParticleSystem *waterEffect = (CCParticleSystem *)[CCBReader load:@"WaterEffect"];
+        waterEffect.position = ccp(bucket.position.x + ((CCSprite *)bucket.children.firstObject).contentSize.width/2, bucket.position.y-10);
+        [waterEffect resetSystem];
+        [physicsNode addChild:waterEffect];
+        [_waterEffects addObject:waterEffect];
+        _bucketActive = TRUE;
+        _bucketTimer = 5;
+        fire_effect.paused = TRUE;
+        bucket.physicsBody.collisionMask = @[];
+        int bonus = _gameTimer < 30 ? 500 : _gameTimer < 90 ? 750 : 1000;
+        _bonus += bonus;
+    }
     return TRUE;
 }
 
