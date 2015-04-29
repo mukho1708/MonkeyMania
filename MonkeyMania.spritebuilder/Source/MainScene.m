@@ -1,7 +1,7 @@
 #import "MainScene.h"
 
 @implementation MainScene {
-    // Declarations
+    // Variable declarations
     NSArray *_grounds;
     NSArray *_tops;
     Monkey *_monkey;
@@ -37,7 +37,7 @@
 
 - (void)didLoadFromCCB 
 {
-    // Initialization
+    // Variable initializations
     self.userInteractionEnabled = TRUE;
     _restartButton.visible = FALSE;
     _grounds = @[ground1, ground2];
@@ -63,11 +63,6 @@
     [self setupSceneWithTop:top1];
     [self setupSceneWithTop:top2];
     
-//    [self addRopeWithSize:[self getRopeSize] atPosX:[self getRopePosition] atTop:top1];
-//    [self addRopeWithSize:[self getRopeSize] atPosX:0.85*top1.contentSize.width+arc4random_uniform(10) atTop:top1];
-//    [self addRopeWithSize:[self getRopeSize] atPosX:top1.contentSize.width+0.15*top2.contentSize.width+arc4random_uniform(10) atTop:top2];
-//    [self addRopeWithSize:[self getRopeSize] atPosX:top1.contentSize.width+0.85*top2.contentSize.width+arc4random_uniform(10) atTop:top2];
-//    
     // Set current and previous rope
     _currentRope = [_ropes objectAtIndex:0];
     _prevCurRope = _currentRope;
@@ -82,12 +77,21 @@
     // Get the last segement of the first/current rope to which the monkey will be attached
     _currentRopeMonkeySeg = ((Rope *)_currentRope[[_currentRope count]-1]);
     
+    // Initialize the monkey
     _monkey = (Monkey*)[CCBReader load:@"Monkey"];
     _monkey.name = @"monkey";
+    
+    // Position it 85% from the top of the rope and middle it
     _monkey.position = [physicsNode convertToNodeSpace:[_currentRopeMonkeySeg convertToWorldSpace:ccp(_currentRopeMonkeySeg.contentSize.width*0.5,_currentRopeMonkeySeg.contentSize.height*0.85)]];
     _monkey.physicsBody.allowsRotation = FALSE;
+    
+    // Save original color to revert on jumping to new ropes
     _originalColor = _monkey.color;
+    
+    // Maximum distance travelled on the x-axis
     maxX = _monkey.position.x;
+    
+    // The world position the monkey should always be located at despite the infinite scrolling
     _beforeCollisionX = [physicsNode convertToWorldSpace:_monkey.position].x;
     [physicsNode addChild:_monkey];
     
@@ -101,14 +105,9 @@
     
 }
 
+// Primary method to setup every screen with the scene containing 2 ropes and 2 sets of artifacts
 -(void) setupSceneWithTop:(CCNode *)top
 {
-    CCNode *prevTop;
-    if (top == top1)
-        prevTop = top2;
-    else
-        prevTop = top1;
-    
     if (_counter == 0) {
         [self addRopeWithSize:[self getRopeSize] atPosX:_ropeSegmentLength*2 -5 + arc4random_uniform(10) atTop:top1];
     }
@@ -165,6 +164,8 @@
     return ropeSize;
 }
 
+
+// Method to add a rope to the scene which consists of adding the rope segments and various joints
 -(void) addRopeWithSize:(int)size atPosX:(float)x atTop:(CCNode *)top
 {
     NSMutableArray *ropeParts = [NSMutableArray array];
@@ -208,6 +209,8 @@
 
 -(void) addFlareWithSizeY:(int)size atPosX:(float)x atTop:(CCNode*)top
 {
+    NSMutableArray *flare = [NSMutableArray array];
+    
     CCParticleSystem* effect = (CCParticleSystem *)[CCBReader load:@"Flare"];
     effect.position = ccp(x,size);
     effect.physicsBody.sensor = YES;
@@ -215,7 +218,11 @@
         [effect stopSystem];
     }
     [physicsNode addChild:effect];
-    [_flares addObject:effect];
+    
+    [flare addObject:effect];
+    [flare addObject:@((1 + arc4random_uniform(4)) * 2)];
+    
+    [_flares addObject:flare];
 }
 
 -(void) addBucketAtPosX:(float)x atTop:(CCNode*)top
@@ -260,18 +267,35 @@
     if (!_gameOver) {
         _score = (int)(maxX - _beforeCollisionX)/10;
         score.string = [NSString stringWithFormat:@"Score: %d", _score+_bonus];
+        
         _gameTimer += delta;
+        
         if (_bucketActive) {
             _bucketTimer -= delta;
+        }
+        else
+        {
+            for (NSMutableArray *flare in _flares) {
+                float duration = ((NSNumber *)flare[1]).floatValue;
+                flare[1] = @((duration - delta) < 0 ? 8 : (duration - delta));
+                if (((NSNumber *)flare[1]).floatValue < 2 && !((CCParticleSystem *)flare[0]).active) {
+                    [((CCParticleSystem *)flare[0]) resetSystem];
+                }
+                else if (((NSNumber *)flare[1]).floatValue > 2 && ((CCParticleSystem *)flare[0]).active)
+                {
+                    [((CCParticleSystem *)flare[0]) stopSystem];
+                }
+            }
         }
         if (_bucketTimer < 0) {
             _bucketTimer = 0;
             _bucketActive = FALSE;
             [fire_effect resetSystem];
-            for (CCParticleSystem *flare in _flares) {
-                [flare resetSystem];
+            for (NSMutableArray *flare in _flares) {
+                [((CCParticleSystem *)flare[0]) resetSystem];
             }
         }
+        
         if (_currentRope == _prevCurRope) {
             _ropeTimer += delta;
         }
@@ -287,6 +311,7 @@
                 }
             }
         }
+        
         if(_monkey.position.x>maxX && _ropeMonkeyJoint == nil)
         {
             maxX = _monkey.position.x;
@@ -350,12 +375,12 @@
             // Remove offscreen flares
             NSMutableArray *offScreenFlares = nil;
             
-            for (CCParticleSystem *flare in _flares) {
-                CGPoint flareWorldPosition = [physicsNode convertToWorldSpace:flare.position];
+            for (NSMutableArray *flare in _flares) {
+                CGPoint flareWorldPosition = [physicsNode convertToWorldSpace:((CCParticleSystem *)flare[0]).position];
                 CGPoint flareScreenPosition = [self convertToNodeSpace:flareWorldPosition];
                 CGPoint monkeyWorldPosition = [physicsNode convertToWorldSpace:_monkey.position];
                 CGPoint monkeyScreenPosition = [self convertToNodeSpace:monkeyWorldPosition];
-                if (flareScreenPosition.x+flare.posVar.x < monkeyScreenPosition.x) {
+                if (flareScreenPosition.x+((CCParticleSystem *)flare[0]).posVar.x < monkeyScreenPosition.x) {
                     if (!offScreenFlares) {
                         offScreenFlares = [NSMutableArray array];
                     }
@@ -363,8 +388,8 @@
                 }
             }
             
-            for (CCParticleSystem *flareToRemove in offScreenFlares) {
-                [flareToRemove removeFromParent];
+            for (NSMutableArray *flareToRemove in offScreenFlares) {
+                [((CCParticleSystem *)flareToRemove[0]) removeFromParent];
                 [_flares removeObject:flareToRemove];
             }
             
@@ -483,10 +508,15 @@
 }
 
 -(BOOL)ccPhysicsCollisionPreSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey flare:(CCParticleSystem *)flare {
-    if (flare.particleCount == 0) {
-        return TRUE;
+    float duration;
+    for (NSMutableArray *flareArray in _flares) {
+        if (((CCParticleSystem  *)flareArray[0]) == flare) {
+            duration = ((NSNumber *)flareArray[1]).floatValue;
+        }
     }
-//    [self gameOver];
+    if (duration < 2 && !_bucketActive) {
+        [self gameOver];
+    }
     return TRUE;
 }
 
@@ -503,8 +533,8 @@
         _bucketActive = TRUE;
         _bucketTimer = 10;
         [fire_effect stopSystem];
-        for (CCParticleSystem *flare in _flares) {
-            [flare stopSystem];
+        for (NSMutableArray *flare in _flares) {
+            [((CCParticleSystem *)flare[0]) stopSystem];
         }
         bucket.physicsBody.collisionMask = @[];
         int bonus = _gameTimer < 30 ? 500 : _gameTimer < 90 ? 750 : 1000;
