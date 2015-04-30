@@ -112,7 +112,7 @@
         [self addRopeWithSize:[self getRopeSize] atPosX:_ropeSegmentLength*2 -5 + arc4random_uniform(10) atTop:top1];
     }
     else{
-        if ((_gameTimer < 30 && (arc4random_uniform(2) == 1)) || (_gameTimer >= 30 && _gameTimer < 90 && (arc4random_uniform(3) == 1)) || (_gameTimer > 90 && (arc4random_uniform(5) == 1))) {
+        if ((_gameTimer < 30 && (arc4random_uniform(4) == 1)) || (_gameTimer >= 30 && _gameTimer < 90 && (arc4random_uniform(7) == 1)) || (_gameTimer > 90 && (arc4random_uniform(10) == 1))) {
             [self addBucketAtPosX:top.position.x + _artifactXInterval - (_artifactXRange - _ropeSegmentLength*2) - 5 + arc4random_uniform(10) atTop:top];
         }
         if ((!_sceneFirstFlareOn) || (_gameTimer >=30 && _gameTimer < 90 && arc4random_uniform(2)==1) || (_gameTimer >= 90))
@@ -129,7 +129,7 @@
     {
         _sceneFirstFlareOn = FALSE;
     }
-    if ((_gameTimer < 30 && (arc4random_uniform(2) == 1)) || (_gameTimer >= 30 && _gameTimer < 90 && (arc4random_uniform(3) == 1)) || (_gameTimer > 90 && (arc4random_uniform(5) == 1))) {
+    if ((_gameTimer < 30 && (arc4random_uniform(4) == 1)) || (_gameTimer >= 30 && _gameTimer < 90 && (arc4random_uniform(7) == 1)) || (_gameTimer > 90 && (arc4random_uniform(10) == 1))) {
         [self addBucketAtPosX:top.position.x + _ropeSegmentLength*4 + _artifactXInterval - 5 + arc4random_uniform(10) atTop:top];
     }
     if ((!_sceneFirstFlareOn) || (_gameTimer >=30 && _gameTimer < 90 && arc4random_uniform(2)==1) || (_gameTimer >= 90) ) {
@@ -278,10 +278,10 @@
             for (NSMutableArray *flare in _flares) {
                 float duration = ((NSNumber *)flare[1]).floatValue;
                 flare[1] = @((duration - delta) < 0 ? 8 : (duration - delta));
-                if (((NSNumber *)flare[1]).floatValue < 2 && !((CCParticleSystem *)flare[0]).active) {
+                if (((NSNumber *)flare[1]).floatValue < 2 && ((CCParticleSystem *)flare[0]).particleCount==0) {
                     [((CCParticleSystem *)flare[0]) resetSystem];
                 }
-                else if (((NSNumber *)flare[1]).floatValue > 2 && ((CCParticleSystem *)flare[0]).active)
+                else if (((NSNumber *)flare[1]).floatValue > 2 && ((CCParticleSystem *)flare[0]).particleCount>0)
                 {
                     [((CCParticleSystem *)flare[0]) stopSystem];
                 }
@@ -439,6 +439,13 @@
         _gameOver = TRUE;
         _restartButton.visible = TRUE;
         
+        CCParticleSystem *monkeyFlame = (CCParticleSystem *)[CCBReader load:@"Flare"];
+        monkeyFlame.emitterMode = CCParticleSystemModeRadius;
+        monkeyFlame.startRadius = -40;
+        monkeyFlame.particlePositionType = CCParticleSystemPositionTypeRelative;
+        monkeyFlame.physicsBody.sensor = YES;
+        [_monkey addChild:monkeyFlame z:1];
+        
         _monkey.physicsBody.velocity = ccp(0.0f, _monkey.physicsBody.velocity.y);
         _monkey.rotation = 270.f;
         _monkey.physicsBody.allowsRotation = FALSE;
@@ -508,20 +515,22 @@
 }
 
 -(BOOL)ccPhysicsCollisionPreSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey flare:(CCParticleSystem *)flare {
-    float duration;
-    for (NSMutableArray *flareArray in _flares) {
-        if (((CCParticleSystem  *)flareArray[0]) == flare) {
-            duration = ((NSNumber *)flareArray[1]).floatValue;
+    if (!_gameOver) {
+        float duration;
+        for (NSMutableArray *flareArray in _flares) {
+            if (((CCParticleSystem  *)flareArray[0]) == flare) {
+                duration = ((NSNumber *)flareArray[1]).floatValue;
+            }
         }
-    }
-    if (duration < 2 && !_bucketActive) {
-        [self gameOver];
+        if (duration < 2 && !_bucketActive) {
+            [self gameOver];
+        }
     }
     return TRUE;
 }
 
 -(BOOL)ccPhysicsCollisionBegin:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey bucket:(CCNode *)bucket {
-    if(![bucket.physicsBody.collisionMask  isEqual: @[]])
+    if(![bucket.physicsBody.collisionMask  isEqual: @[]] && !_gameOver)
     {
         CCAnimationManager *bucketAnimationManager = bucket.animationManager;
         [bucketAnimationManager runAnimationsForSequenceNamed:@"Tilt Bucket"];
