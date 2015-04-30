@@ -581,6 +581,20 @@
         bucket.physicsBody.collisionMask = @[];
         int bonus = _gameTimer < 30 ? 500 : _gameTimer < 90 ? 750 : 1000;
         _bonus += bonus;
+        
+        CCLabelTTF *bucketBonus = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"%d", bonus] fontName:@"Arial" fontSize:16];
+        bucketBonus.position = [monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(monkey.position.x,monkey.position.y + monkey.contentSize.height/2)]];
+        bucketBonus.fontColor = [CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1];
+        [monkey addChild:bucketBonus];
+        
+        CCActionFadeOut *bonusFade = [CCActionFadeOut actionWithDuration:2];
+        CCActionMoveBy *bonusMove = [CCActionMoveBy actionWithDuration:2 position:ccp(0,monkey.contentSize.height)];
+        CCActionCallBlock *actionAfterMoving = [CCActionCallBlock actionWithBlock:^{
+            [bucketBonus removeFromParent];
+        }];
+        [bucketBonus runAction:bonusFade];
+        CCActionSequence *bonusLabelMove = [CCActionSequence actionWithArray:@[bonusMove, actionAfterMoving]];
+        [bucketBonus runAction:bonusLabelMove];
     }
     return TRUE;
 }
