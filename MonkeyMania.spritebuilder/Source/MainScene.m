@@ -20,6 +20,9 @@
     float _ropeTimer;
     float _gameTimer;
     CCColor *_originalColor;
+    CCActionTintTo *_orangeTintAction;
+    CCActionTintTo *_redTintAction;
+    CCActionTintTo *_blackTintAction;
     Rope *_currentRopeMonkeySeg;
     int _lastRopeSize;
     float _artifactXRange;
@@ -57,6 +60,9 @@
     _bucketTimer = 0;
     _score = 0;
     _bonus = 0;
+    _orangeTintAction = nil;
+    _redTintAction = nil;
+    _blackTintAction = nil;
     
     //Setup initial scenes
     
@@ -77,16 +83,19 @@
     // Get the last segement of the first/current rope to which the monkey will be attached
     _currentRopeMonkeySeg = ((Rope *)_currentRope[[_currentRope count]-1]);
     
-    // Initialize the monkey
+    // Initialize the monkey and stop the burning effect
     _monkey = (Monkey*)[CCBReader load:@"Monkey"];
     _monkey.name = @"monkey";
+    [((CCParticleSystem *)_monkey.children.firstObject) stopSystem];
     
     // Position it 85% from the top of the rope and middle it
     _monkey.position = [physicsNode convertToNodeSpace:[_currentRopeMonkeySeg convertToWorldSpace:ccp(_currentRopeMonkeySeg.contentSize.width*0.5,_currentRopeMonkeySeg.contentSize.height*0.85)]];
     _monkey.physicsBody.allowsRotation = FALSE;
     
-    // Save original color to revert on jumping to new ropes
+    // Save original color to revert on jumping to new ropes. Set the initial color to white to be able to revert to original colour when using the CCActionTintTo transition
     _originalColor = _monkey.color;
+    _monkey.color = [CCColor whiteColor];
+    [_monkey runAction:[CCActionTintTo actionWithDuration:.1 color:_originalColor]];
     
     // Maximum distance travelled on the x-axis
     maxX = _monkey.position.x;
@@ -95,7 +104,7 @@
     _beforeCollisionX = [physicsNode convertToWorldSpace:_monkey.position].x;
     [physicsNode addChild:_monkey];
     
-    
+    // Make the joint between the monkey and the rope and enable impulse on touch
     _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:_currentRopeMonkeySeg.physicsBody bodyB:_monkey.physicsBody anchorA:ccp(_currentRopeMonkeySeg.contentSize.width,_currentRopeMonkeySeg.contentSize.height*0.85)];
     _allowImpulse = TRUE;
     
@@ -108,6 +117,7 @@
 // Primary method to setup every screen with the scene containing 2 ropes and 2 sets of artifacts
 -(void) setupSceneWithTop:(CCNode *)top
 {
+    // In case of the first scene start from the first rope, else start with the first artifact, the bucket, followed by the flare and the rope
     if (_counter == 0) {
         [self addRopeWithSize:[self getRopeSize] atPosX:_ropeSegmentLength*2 -5 + arc4random_uniform(10) atTop:top1];
     }
@@ -121,6 +131,7 @@
         }
         [self addRopeWithSize:[self getRopeSize] atPosX:top.position.x + _ropeSegmentLength*2 - 5 + arc4random_uniform(10) atTop:top];
     }
+    // Add the other artifacts after the first rope. [Flare, Bucket, Flare], [Second Rope], [Flare]. Use the _sceneFirstFlareOn flag to control the probability of the second flare
     if (_gameTimer >= 90 || arc4random_uniform(2) == 1) {
         [self addFlareWithSizeY:250 atPosX:top.position.x + _ropeSegmentLength*4 + arc4random_uniform(10) atTop:top];
         _sceneFirstFlareOn = TRUE;
@@ -147,6 +158,7 @@
     
 }
 
+// Method to get a variable rope size for different ropes based on how far into the game the player is (difficulty)
 -(int) getRopeSize
 {
     _counter++;
@@ -299,18 +311,26 @@
         if (_currentRope == _prevCurRope) {
             _ropeTimer += delta;
         }
-        if (_ropeTimer > 3) {
-            _monkey.color = [CCColor orangeColor];
-            if (_ropeTimer > 6) {
-                _monkey.color = [CCColor redColor];
-                if(_ropeTimer > 9) {
-                    _monkey.color = [CCColor blackColor];
-                    [_ropeMonkeyJoint invalidate];
-                    _ropeMonkeyJoint = nil;
-                    _allowImpulse = FALSE;
-                }
-            }
+        if (_ropeTimer >= 1 && _ropeTimer < 3 && _orangeTintAction == nil) {
+            _orangeTintAction = [CCActionTintTo actionWithDuration:3 color:[CCColor orangeColor]];
+            [_monkey runAction:_orangeTintAction];
         }
+        else if (_ropeTimer >= 3 && _ropeTimer < 6 && _redTintAction == nil) {
+            _redTintAction = [CCActionTintTo actionWithDuration:3 color:[CCColor redColor]];
+            [_monkey runAction:_redTintAction];
+        }
+        else if(_ropeTimer >= 6 && _ropeTimer < 9 && _blackTintAction == nil) {
+            _blackTintAction = [CCActionTintTo actionWithDuration:3 color:[CCColor blackColor]];
+            [_monkey runAction:_blackTintAction];
+        }
+        else if (_ropeTimer > 9)
+        {
+            [_ropeMonkeyJoint invalidate];
+            _ropeMonkeyJoint = nil;
+            _allowImpulse = FALSE;
+            [self gameOver];
+        }
+        
         
         if(_monkey.position.x>maxX && _ropeMonkeyJoint == nil)
         {
@@ -439,19 +459,27 @@
         _gameOver = TRUE;
         _restartButton.visible = TRUE;
         
-        CCParticleSystem *monkeyFlame = (CCParticleSystem *)[CCBReader load:@"Flare"];
-        monkeyFlame.emitterMode = CCParticleSystemModeRadius;
-        monkeyFlame.startRadius = -40;
-        monkeyFlame.particlePositionType = CCParticleSystemPositionTypeRelative;
-        monkeyFlame.physicsBody.sensor = YES;
-        [_monkey addChild:monkeyFlame z:1];
+        [_monkey stopAction:_orangeTintAction];
+        [_monkey stopAction:_redTintAction];
+        [_monkey stopAction:_blackTintAction];
+        _orangeTintAction = nil;
+        _redTintAction = nil;
+        _blackTintAction = nil;
         
-        _monkey.physicsBody.velocity = ccp(0.0f, _monkey.physicsBody.velocity.y);
+        [((CCParticleSystem *)_monkey.children.firstObject) resetSystem];
+        
+        _monkey.physicsBody.velocity = ccp(_monkey.physicsBody.velocity.x * 0.25, _monkey.physicsBody.velocity.y);
         _monkey.rotation = 270.f;
         _monkey.physicsBody.allowsRotation = FALSE;
         [_monkey stopAllActions];
         [animationManager setPaused:YES];
         
+        _monkey.physicsBody.collisionMask = @[@"ground", @"top"];
+        _followMonkey = [CCActionFollow actionWithTarget:_monkey worldBoundary:self.boundingBox];
+        [_monkey runAction:_followMonkey];
+        _blackTintAction = [CCActionTintTo actionWithDuration:0.5 color:[CCColor blackColor]];
+        [_monkey runAction:_blackTintAction];
+        [_monkey runAction:[CCActionFadeOut actionWithDuration:2]];
         CCActionMoveBy *moveBy = [CCActionMoveBy actionWithDuration:0.2f position:ccp(-2, 2)];
         CCActionInterval *reverseMovement = [moveBy reverse];
         CCActionSequence *shakeSequence = [CCActionSequence actionWithArray:@[moveBy, reverseMovement]];
@@ -467,7 +495,7 @@
 }
 
 -(BOOL)ccPhysicsCollisionPostSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey rope:(CCNode *)rope {
-    if (![rope.physicsBody.collisionMask  isEqual: @[]]) {
+    if (![rope.physicsBody.collisionMask  isEqual: @[]] && !_gameOver) {
         
         bool foundSegement = FALSE;
         
@@ -492,7 +520,6 @@
         }
         _ropeTimer = 0;
         monkey.physicsBody.allowsRotation = FALSE;
-        //_currentRopeMonkeySeg.physicsBody.allowsRotation = TRUE;
         
         [animationManager runAnimationsForSequenceNamed:@"Default"];
     
@@ -507,7 +534,13 @@
         physicsNode.position = ccp(physicsNode.position.x - ([physicsNode convertToWorldSpace:_monkey.position].x - _beforeCollisionX), physicsNode.position.y);
         
         monkey.rotation = 0.f;
-        monkey.color = _originalColor;
+        [monkey stopAction:_orangeTintAction];
+        [monkey stopAction:_redTintAction];
+        [monkey stopAction:_blackTintAction];
+        _orangeTintAction = nil;
+        _redTintAction = nil;
+        _blackTintAction = nil;
+        [monkey runAction:[CCActionTintTo actionWithDuration:1 color:_originalColor]];
         
         _allowImpulse = TRUE;
     }
@@ -554,7 +587,9 @@
 
 
 -(BOOL)ccPhysicsCollisionBegin:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey ground:(CCNode *)ground {
-    [self gameOver];
+    if (!_gameOver) {
+        [self gameOver];
+    }
     return TRUE;
 }
 
