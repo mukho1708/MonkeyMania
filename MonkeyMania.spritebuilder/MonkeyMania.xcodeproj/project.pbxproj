@@ -95,6 +95,7 @@
 		BC5399DB1A44DCC90063F482 /* JavaFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC5399D61A44DCC90063F482 /* JavaFoundation.framework */; };
 		BC5399DC1A44DCC90063F482 /* JavaKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC5399D71A44DCC90063F482 /* JavaKit.framework */; };
 		C50D11CB1ACAB17000BF1263 /* Rope.m in Sources */ = {isa = PBXBuildFile; fileRef = C50D11CA1ACAB17000BF1263 /* Rope.m */; };
+		C55790A61AF459850067D045 /* GameState.m in Sources */ = {isa = PBXBuildFile; fileRef = C55790A51AF459850067D045 /* GameState.m */; };
 		C57FB07B1AC961D700EC2981 /* Monkey.m in Sources */ = {isa = PBXBuildFile; fileRef = C57FB07A1AC961D700EC2981 /* Monkey.m */; };
 /* End PBXBuildFile section */
 
@@ -216,6 +217,8 @@
 		BC5399D71A44DCC90063F482 /* JavaKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaKit.framework; path = "../../../../Library/Application Support/Developer/Shared/Xcode/Platforms/Android.platform/Developer/SDKs/SBAndroid.sdk/System/Library/Frameworks/JavaKit.framework"; sourceTree = "<group>"; };
 		C50D11C91ACAB17000BF1263 /* Rope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Rope.h; sourceTree = "<group>"; };
 		C50D11CA1ACAB17000BF1263 /* Rope.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Rope.m; sourceTree = "<group>"; };
+		C55790A41AF459840067D045 /* GameState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameState.h; sourceTree = "<group>"; };
+		C55790A51AF459850067D045 /* GameState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameState.m; sourceTree = "<group>"; };
 		C57FB0791AC961D700EC2981 /* Monkey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Monkey.h; sourceTree = "<group>"; };
 		C57FB07A1AC961D700EC2981 /* Monkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Monkey.m; sourceTree = "<group>"; };
 		D352B48019EC608A00829775 /* MetalShaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = MetalShaders; path = Source/MetalShaders; sourceTree = "<group>"; };
@@ -445,6 +448,8 @@
 				7A40362019DDEF0D007B6E8F /* Platforms */,
 				B7378992180767190076A88C /* MainScene.h */,
 				B7378993180767190076A88C /* MainScene.m */,
+				C55790A41AF459840067D045 /* GameState.h */,
+				C55790A51AF459850067D045 /* GameState.m */,
 				D352B48019EC608A00829775 /* MetalShaders */,
 				C57FB0791AC961D700EC2981 /* Monkey.h */,
 				C57FB07A1AC961D700EC2981 /* Monkey.m */,
@@ -827,6 +832,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C50D11CB1ACAB17000BF1263 /* Rope.m in Sources */,
+				C55790A61AF459850067D045 /* GameState.m in Sources */,
 				B73789871807631A0076A88C /* main.m in Sources */,
 				7A046D8C19E8A20E004C4763 /* MainScene.m in Sources */,
 				C57FB07B1AC961D700EC2981 /* Monkey.m in Sources */,
