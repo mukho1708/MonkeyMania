@@ -36,6 +36,11 @@
     float _bucketTimer;
     int _score;
     int _bonus;
+    float _touchBeganX;
+    float _touchBeganY;
+    float _touchEndedX;
+    float _touchEndedY;
+    NSDate *_touchStart;
 }
 
 - (void)didLoadFromCCB 
@@ -49,9 +54,9 @@
     _counter = 0;
     _ropeTimer = 0;
     _gameTimer = 0;
-    _artifactXRange = ([[CCDirector sharedDirector] viewSize].width - 260)/2;
-    _artifactXInterval = _artifactXRange/3;
     _ropeSegmentLength = 65;
+    _artifactXRange = ([[CCDirector sharedDirector] viewSize].width - _ropeSegmentLength*4)/2;
+    _artifactXInterval = _artifactXRange/3;
     _flares = [NSMutableArray array];
     _buckets = [NSMutableArray array];
     _waterEffects = [NSMutableArray array];
@@ -63,6 +68,10 @@
     _orangeTintAction = nil;
     _redTintAction = nil;
     _blackTintAction = nil;
+    _touchBeganX = 0;
+    _touchBeganY = 0;
+    _touchEndedX = 0;
+    _touchEndedY = 0;
     
     //Setup initial scenes
     
@@ -251,27 +260,36 @@
 -(void) touchBegan:(CCTouch *)touch withEvent:(CCTouchEvent *)event
 {
     //CGPoint touchLocation = [touch locationInNode:_contentNode];
-    _prevCurRope = _currentRope;
-    _ropeTimer = 0;
+    _touchBeganX = [touch locationInNode:physicsNode].x;
+    _touchBeganY = [touch locationInNode:physicsNode].y;
+    _touchStart = [NSDate date];
 }
 
 -(void) touchEnded:(CCTouch *)touch withEvent:(CCTouchEvent *)event
 {
-    
-    _monkey.physicsBody.allowsRotation = TRUE;
-    
-    [_ropeMonkeyJoint invalidate];
-    _ropeMonkeyJoint = nil;
-    
-    if (_allowImpulse) {
-        [_monkey.physicsBody applyImpulse:ccp(800, 150)];
-        _allowImpulse = FALSE;
-    
-        animationManager = _monkey.animationManager;
-        [animationManager runAnimationsForSequenceNamed:@"JumpRight"];
+    _touchEndedX = [touch locationInNode:physicsNode].x;
+    _touchEndedY = [touch locationInNode:physicsNode].y;
+    NSTimeInterval swipeTime = fabs([_touchStart timeIntervalSinceNow]);
+    if (_touchEndedX - _touchBeganX > .001 * [[CCDirector sharedDirector] viewSize].width) {
+        _prevCurRope = _currentRope;
+        _ropeTimer = 0;
+        
+        _monkey.physicsBody.allowsRotation = TRUE;
+        
+        [_ropeMonkeyJoint invalidate];
+        _ropeMonkeyJoint = nil;
+        
+        if (_allowImpulse) {
+            //[_monkey.physicsBody applyImpulse:ccp(800, 150)];
+            [_monkey.physicsBody applyImpulse:ccp((_touchEndedX-_touchBeganX)/(float)swipeTime > 750 ? 750 : (_touchEndedX-_touchBeganX)/(float)swipeTime, (_touchEndedY-_touchBeganY)/(float)swipeTime > 100 ? 100 : (_touchEndedY-_touchBeganY)/(float)swipeTime < -50 ? -50 : (_touchEndedY-_touchBeganY)/(float)swipeTime)];
+            _allowImpulse = FALSE;
+        
+            animationManager = _monkey.animationManager;
+            [animationManager runAnimationsForSequenceNamed:@"JumpRight"];
+        }
+        _followMonkey = [CCActionFollow actionWithTarget:_monkey worldBoundary:self.boundingBox];
+        [contentNode runAction:_followMonkey];
     }
-    _followMonkey = [CCActionFollow actionWithTarget:_monkey worldBoundary:self.boundingBox];
-    [contentNode runAction:_followMonkey];
 }
 
 - (void)update:(CCTime)delta
