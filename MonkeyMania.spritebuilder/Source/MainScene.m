@@ -292,6 +292,110 @@
     }
 }
 
+-(void)runTutorialWithDelta:(CCTime)delta
+{
+    if (_gameTimer > 3 && (_gameTimer - delta) <= 3) {
+        CCNodeColor *tutorialBg = [CCNodeColor nodeWithColor:[CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1] width:150 height:100];
+        tutorialBg.position = [_monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(_monkey.position.x + _monkey.contentSize.width/2,_monkey.position.y*.5)]];
+        CCLabelTTF *tutorialText = [CCLabelTTF labelWithString:@"I am burning up! I need to get to the next rope. Swipe to jump." fontName:@"Arial" fontSize:16];
+        tutorialText.fontColor = [CCColor blackColor];
+        tutorialText.dimensions = tutorialBg.contentSize;
+        tutorialText.position = ccp(tutorialBg.contentSize.width/2, tutorialBg.contentSize.height/2);
+        [tutorialBg addChild:tutorialText];
+        [_monkey addChild:tutorialBg];
+        
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
+            [tutorialBg removeAllChildren];
+            [tutorialBg removeFromParent];
+        }];
+        [tutorialText runAction:tutorialFade];
+        CCActionSequence *tutorialFadeSeq = [CCActionSequence actionWithArray:@[tutorialFade, actionAfterFade]];
+        [tutorialBg runAction:tutorialFadeSeq];
+    }
+    
+    if (_gameTimer > 7 && (_gameTimer - delta) <= 7) {
+        CCNodeColor *tutorialBg = [CCNodeColor nodeWithColor:[CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1] width:150 height:100];
+        tutorialBg.position = [_monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(_monkey.position.x + _monkey.contentSize.width/2,_monkey.position.y*.5)]];
+        CCLabelTTF *tutorialText = [CCLabelTTF labelWithString:@"Beware of those towering flares! They look dangerous. Look for a gap." fontName:@"Arial" fontSize:16];
+        tutorialText.fontColor = [CCColor blackColor];
+        tutorialText.dimensions = tutorialBg.contentSize;
+        tutorialText.position = ccp(tutorialBg.contentSize.width/2, tutorialBg.contentSize.height/2);
+        [tutorialBg addChild:tutorialText];
+        [_monkey addChild:tutorialBg];
+        
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
+            [tutorialBg removeAllChildren];
+            [tutorialBg removeFromParent];
+        }];
+        [tutorialText runAction:tutorialFade];
+        CCActionSequence *tutorialFadeSeq = [CCActionSequence actionWithArray:@[tutorialFade, actionAfterFade]];
+        [tutorialBg runAction:tutorialFadeSeq];
+    }
+    
+    if (_gameTimer > 11 && (_gameTimer - delta) <= 11) {
+        CCNodeColor *tutorialBg = [CCNodeColor nodeWithColor:[CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1] width:150 height:100];
+        tutorialBg.position = [_monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(_monkey.position.x + _monkey.contentSize.width/2,_monkey.position.y*.5)]];
+        CCLabelTTF *tutorialText = [CCLabelTTF labelWithString:@"The bucket is just what I need to put out the fire for sometime. It gives extra points and life!" fontName:@"Arial" fontSize:16];
+        tutorialText.fontColor = [CCColor blackColor];
+        tutorialText.dimensions = tutorialBg.contentSize;
+        tutorialText.position = ccp(tutorialBg.contentSize.width/2, tutorialBg.contentSize.height/2);
+        [tutorialBg addChild:tutorialText];
+        [_monkey addChild:tutorialBg];
+        
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
+            [tutorialBg removeAllChildren];
+            [tutorialBg removeFromParent];
+        }];
+        [tutorialText runAction:tutorialFade];
+        CCActionSequence *tutorialFadeSeq = [CCActionSequence actionWithArray:@[tutorialFade, actionAfterFade]];
+        [tutorialBg runAction:tutorialFadeSeq];
+    }
+    
+    if (_gameTimer > 30 && (_gameTimer - delta) <= 30) {
+        CCNodeColor *tutorialBg = [CCNodeColor nodeWithColor:[CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1] width:150 height:100];
+        tutorialBg.position = [_monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(_monkey.position.x + _monkey.contentSize.width/2,_monkey.position.y*.5)]];
+        CCLabelTTF *tutorialText = [CCLabelTTF labelWithString:@"It seems to be getting tougher. Its easier to swing into a flare with longer ropes." fontName:@"Arial" fontSize:16];
+        tutorialText.fontColor = [CCColor blackColor];
+        tutorialText.dimensions = tutorialBg.contentSize;
+        tutorialText.position = ccp(tutorialBg.contentSize.width/2, tutorialBg.contentSize.height/2);
+        [tutorialBg addChild:tutorialText];
+        [_monkey addChild:tutorialBg];
+        
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
+            [tutorialBg removeAllChildren];
+            [tutorialBg removeFromParent];
+        }];
+        [tutorialText runAction:tutorialFade];
+        CCActionSequence *tutorialFadeSeq = [CCActionSequence actionWithArray:@[tutorialFade, actionAfterFade]];
+        [tutorialBg runAction:tutorialFadeSeq];
+    }
+    
+    if (_gameTimer > 90 && (_gameTimer - delta) <= 90) {
+        CCNodeColor *tutorialBg = [CCNodeColor nodeWithColor:[CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1] width:150 height:100];
+        tutorialBg.position = [_monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(_monkey.position.x + _monkey.contentSize.width/2,_monkey.position.y*.5)]];
+        CCLabelTTF *tutorialText = [CCLabelTTF labelWithString:@"Lookout! Its about to get really rough." fontName:@"Arial" fontSize:16];
+        tutorialText.fontColor = [CCColor blackColor];
+        tutorialText.dimensions = tutorialBg.contentSize;
+        tutorialText.position = ccp(tutorialBg.contentSize.width/2, tutorialBg.contentSize.height/2);
+        [tutorialBg addChild:tutorialText];
+        [_monkey addChild:tutorialBg];
+        
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
+            [tutorialBg removeAllChildren];
+            [tutorialBg removeFromParent];
+        }];
+        [tutorialText runAction:tutorialFade];
+        CCActionSequence *tutorialFadeSeq = [CCActionSequence actionWithArray:@[tutorialFade, actionAfterFade]];
+        [tutorialBg runAction:tutorialFadeSeq];
+    }
+
+}
+
 - (void)update:(CCTime)delta
 {
     if (!_gameOver) {
@@ -299,6 +403,8 @@
         score.string = [NSString stringWithFormat:@"Score: %d", _score+_bonus];
         
         _gameTimer += delta;
+        
+        [self runTutorialWithDelta:delta];
         
         if (_bucketActive) {
             _bucketTimer -= delta;
@@ -483,6 +589,11 @@
         _orangeTintAction = nil;
         _redTintAction = nil;
         _blackTintAction = nil;
+        
+        if (_monkey.children.count > 1) {
+            [(CCNodeColor *)(_monkey.children.lastObject) removeFromParent];
+        }
+
         
         [((CCParticleSystem *)_monkey.children.firstObject) resetSystem];
         

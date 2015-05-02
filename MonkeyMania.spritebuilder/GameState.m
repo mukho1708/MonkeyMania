@@ -31,7 +31,7 @@ static NSString* KeyForHighScore = @"highScore";
 
 -(NSInteger) highScore
 {
-    return [[NSUserDefaults standardUserDefaults] integerForKey:KeyForHighScore];
+    return [[NSUserDefaults standardUserDefaults] integerForKey:KeyForHighScore] == 0 ? 5000 : [[NSUserDefaults standardUserDefaults] integerForKey:KeyForHighScore];
 }
 
 @end
