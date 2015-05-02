@@ -41,6 +41,9 @@
     float _touchEndedX;
     float _touchEndedY;
     NSDate *_touchStart;
+    int _life;
+    int _lifeLost;
+    BOOL _reset;
 }
 
 - (void)didLoadFromCCB 
@@ -72,6 +75,9 @@
     _touchBeganY = 0;
     _touchEndedX = 0;
     _touchEndedY = 0;
+    _life = 0;
+    _lifeLost = 0;
+    _reset = FALSE;
     
     //Setup initial scenes
     
@@ -259,7 +265,7 @@
 // called on every touch in this scene
 -(void) touchBegan:(CCTouch *)touch withEvent:(CCTouchEvent *)event
 {
-    //CGPoint touchLocation = [touch locationInNode:_contentNode];
+    _reset = FALSE;
     _touchBeganX = [touch locationInNode:physicsNode].x;
     _touchBeganY = [touch locationInNode:physicsNode].y;
     _touchStart = [NSDate date];
@@ -281,7 +287,7 @@
         
         if (_allowImpulse) {
             //[_monkey.physicsBody applyImpulse:ccp(800, 150)];
-            [_monkey.physicsBody applyImpulse:ccp((_touchEndedX-_touchBeganX)/(float)swipeTime > 750 ? 750 : (_touchEndedX-_touchBeganX)/(float)swipeTime, (_touchEndedY-_touchBeganY)/(float)swipeTime > 100 ? 100 : (_touchEndedY-_touchBeganY)/(float)swipeTime < -50 ? -50 : (_touchEndedY-_touchBeganY)/(float)swipeTime)];
+            [_monkey.physicsBody applyImpulse:ccp((_touchEndedX-_touchBeganX)/(float)swipeTime > 800 ? 800 : (_touchEndedX-_touchBeganX)/(float)swipeTime, (_touchEndedY-_touchBeganY)/(float)swipeTime > 125 ? 125 : (_touchEndedY-_touchBeganY)/(float)swipeTime < -50 ? -50 : (_touchEndedY-_touchBeganY)/(float)swipeTime)];
             _allowImpulse = FALSE;
         
             animationManager = _monkey.animationManager;
@@ -304,7 +310,7 @@
         [tutorialBg addChild:tutorialText];
         [_monkey addChild:tutorialBg];
         
-        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:5];
         CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
             [tutorialBg removeAllChildren];
             [tutorialBg removeFromParent];
@@ -314,7 +320,7 @@
         [tutorialBg runAction:tutorialFadeSeq];
     }
     
-    if (_gameTimer > 7 && (_gameTimer - delta) <= 7) {
+    if (_gameTimer > 9 && (_gameTimer - delta) <= 9) {
         CCNodeColor *tutorialBg = [CCNodeColor nodeWithColor:[CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1] width:150 height:100];
         tutorialBg.position = [_monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(_monkey.position.x + _monkey.contentSize.width/2,_monkey.position.y*.5)]];
         CCLabelTTF *tutorialText = [CCLabelTTF labelWithString:@"Beware of those towering flares! They look dangerous. Look for a gap." fontName:@"Arial" fontSize:16];
@@ -324,7 +330,7 @@
         [tutorialBg addChild:tutorialText];
         [_monkey addChild:tutorialBg];
         
-        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:5];
         CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
             [tutorialBg removeAllChildren];
             [tutorialBg removeFromParent];
@@ -334,7 +340,7 @@
         [tutorialBg runAction:tutorialFadeSeq];
     }
     
-    if (_gameTimer > 11 && (_gameTimer - delta) <= 11) {
+    if (_gameTimer > 15 && (_gameTimer - delta) <= 15) {
         CCNodeColor *tutorialBg = [CCNodeColor nodeWithColor:[CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1] width:150 height:100];
         tutorialBg.position = [_monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(_monkey.position.x + _monkey.contentSize.width/2,_monkey.position.y*.5)]];
         CCLabelTTF *tutorialText = [CCLabelTTF labelWithString:@"The bucket is just what I need to put out the fire for sometime. It gives extra points and life!" fontName:@"Arial" fontSize:16];
@@ -344,7 +350,7 @@
         [tutorialBg addChild:tutorialText];
         [_monkey addChild:tutorialBg];
         
-        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:5];
         CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
             [tutorialBg removeAllChildren];
             [tutorialBg removeFromParent];
@@ -580,41 +586,95 @@
 
 - (void)gameOver {
     if (!_gameOver) {
-        _gameOver = TRUE;
-        _restartButton.visible = TRUE;
-        
-        [_monkey stopAction:_orangeTintAction];
-        [_monkey stopAction:_redTintAction];
-        [_monkey stopAction:_blackTintAction];
-        _orangeTintAction = nil;
-        _redTintAction = nil;
-        _blackTintAction = nil;
-        
-        if (_monkey.children.count > 1) {
-            [(CCNodeColor *)(_monkey.children.lastObject) removeFromParent];
+        if(_life != 0)
+        {
+            _reset = TRUE;
+            _lifeLost++;
+            monkeyLifeLabel.string = [NSString stringWithFormat:@"%dX", --_life];
+            CCActionScaleTo *scaleUp = [CCActionScaleTo actionWithDuration:0.5 scaleX:1 scaleY:4];
+            CCActionScaleTo *scaleDown = [CCActionScaleTo actionWithDuration:0.5 scaleX:1 scaleY:1];
+            CCActionSequence *scaleUpDown = [CCActionSequence actionWithArray:@[scaleUp, scaleDown]];
+            [monkeyLifeLabel runAction:scaleUpDown];
+            
+            BOOL found = FALSE;
+            
+            for (NSMutableArray *aRope in _ropes) {
+                if (found) {
+                    _currentRope = aRope;
+                }
+                if (_currentRope == aRope) {
+                    found = TRUE;
+                }
+            }
+            if (!found) {
+                _currentRope = _ropes.firstObject;
+            }
+            ((Rope *)_currentRope[2]).rotation = 0;
+            
+            _currentRopeMonkeySeg = ((Rope *)_currentRope[[_currentRope count]-1]);
+            
+            // Position it 85% from the top of the rope and middle it
+            _monkey.position = [physicsNode convertToNodeSpace:[_currentRopeMonkeySeg convertToWorldSpace:ccp(_currentRopeMonkeySeg.contentSize.width*0.5,_currentRopeMonkeySeg.contentSize.height*0.85)]];
+            
+            _ropeTimer = 0;
+            _monkey.physicsBody.allowsRotation = FALSE;
+            
+            [animationManager runAnimationsForSequenceNamed:@"Default"];
+            
+            _ropeMonkeyJoint = [CCPhysicsJoint connectedPivotJointWithBodyA:_currentRopeMonkeySeg.physicsBody bodyB:_monkey.physicsBody anchorA:ccp(5,[_currentRopeMonkeySeg convertToNodeSpace:_monkey.position].y)];
+            
+            physicsNode.position = ccp(physicsNode.position.x - ([physicsNode convertToWorldSpace:_monkey.position].x - _beforeCollisionX), physicsNode.position.y);
+            
+            _monkey.rotation = 0.f;
+            [_monkey stopAction:_orangeTintAction];
+            [_monkey stopAction:_redTintAction];
+            [_monkey stopAction:_blackTintAction];
+            _orangeTintAction = nil;
+            _redTintAction = nil;
+            _blackTintAction = nil;
+            [_monkey runAction:[CCActionTintTo actionWithDuration:1 color:_originalColor]];
+            
+            _allowImpulse = TRUE;
+            
         }
+        else
+        {
+            _gameOver = TRUE;
+            _restartButton.visible = TRUE;
+            
+            [_monkey stopAction:_orangeTintAction];
+            [_monkey stopAction:_redTintAction];
+            [_monkey stopAction:_blackTintAction];
+            _orangeTintAction = nil;
+            _redTintAction = nil;
+            _blackTintAction = nil;
+            
+            if (_monkey.children.count > 1) {
+                [(CCNodeColor *)(_monkey.children.lastObject) removeFromParent];
+            }
 
-        
-        [((CCParticleSystem *)_monkey.children.firstObject) resetSystem];
-        
-        _monkey.physicsBody.velocity = ccp(_monkey.physicsBody.velocity.x * 0.25, _monkey.physicsBody.velocity.y);
-        _monkey.rotation = 270.f;
-        _monkey.physicsBody.allowsRotation = FALSE;
-        [_monkey stopAllActions];
-        [animationManager setPaused:YES];
-        
-        _monkey.physicsBody.collisionMask = @[@"ground", @"top"];
-        _followMonkey = [CCActionFollow actionWithTarget:_monkey worldBoundary:self.boundingBox];
-        [_monkey runAction:_followMonkey];
-        _blackTintAction = [CCActionTintTo actionWithDuration:0.5 color:[CCColor blackColor]];
-        [_monkey runAction:_blackTintAction];
-        [_monkey runAction:[CCActionFadeOut actionWithDuration:2]];
-        CCActionMoveBy *moveBy = [CCActionMoveBy actionWithDuration:0.2f position:ccp(-2, 2)];
-        CCActionInterval *reverseMovement = [moveBy reverse];
-        CCActionSequence *shakeSequence = [CCActionSequence actionWithArray:@[moveBy, reverseMovement]];
-        CCActionEaseBounce *bounce = [CCActionEaseBounce actionWithAction:shakeSequence];
-        
-        [self runAction:bounce];
+            
+            [((CCParticleSystem *)_monkey.children.firstObject) resetSystem];
+            
+            _monkey.physicsBody.velocity = ccp(_monkey.physicsBody.velocity.x * 0.25, _monkey.physicsBody.velocity.y);
+            _monkey.rotation = 270.f;
+            _monkey.physicsBody.allowsRotation = FALSE;
+            [_monkey stopAllActions];
+            [animationManager setPaused:YES];
+            
+            _monkey.physicsBody.collisionMask = @[@"ground", @"top"];
+            _followMonkey = [CCActionFollow actionWithTarget:_monkey worldBoundary:self.boundingBox];
+            [_monkey runAction:_followMonkey];
+            _blackTintAction = [CCActionTintTo actionWithDuration:0.5 color:[CCColor blackColor]];
+            [_monkey runAction:_blackTintAction];
+            [_monkey runAction:[CCActionFadeOut actionWithDuration:2]];
+            CCActionMoveBy *moveBy = [CCActionMoveBy actionWithDuration:0.2f position:ccp(-2, 2)];
+            CCActionInterval *reverseMovement = [moveBy reverse];
+            CCActionSequence *shakeSequence = [CCActionSequence actionWithArray:@[moveBy, reverseMovement]];
+            CCActionEaseBounce *bounce = [CCActionEaseBounce actionWithAction:shakeSequence];
+            
+            [self runAction:bounce];
+        }
     }
 }
 
@@ -677,7 +737,7 @@
 }
 
 -(BOOL)ccPhysicsCollisionPreSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey flare:(CCParticleSystem *)flare {
-    if (!_gameOver) {
+    if (!_gameOver && !_reset) {
         float duration;
         for (NSMutableArray *flareArray in _flares) {
             if (((CCParticleSystem  *)flareArray[0]) == flare) {
@@ -708,8 +768,17 @@
             [((CCParticleSystem *)flare[0]) stopSystem];
         }
         bucket.physicsBody.collisionMask = @[];
-        int bonus = _gameTimer < 30 ? 500 : _gameTimer < 90 ? 750 : 1000;
+        int bonus = _gameTimer < 30 ? 750 : _gameTimer < 90 ? 1000 : 1500;
         _bonus += bonus;
+        if (_bonus/3000 - _lifeLost > _life) {
+            monkeyLifeLabel.string = [NSString stringWithFormat:@"%dX", ++_life];
+            CCActionScaleTo *scaleUp = [CCActionScaleTo actionWithDuration:0.5 scaleX:1 scaleY:4];
+            CCActionScaleTo *scaleDown = [CCActionScaleTo actionWithDuration:0.5 scaleX:1 scaleY:1];
+            CCActionSequence *scaleUpDown = [CCActionSequence actionWithArray:@[scaleUp, scaleDown]];
+            [monkeyLifeLabel runAction:scaleUpDown];
+        }
+        
+        waterBar.contentSizeInPoints = CGSizeMake(fmodf(waterBar.contentSizeInPoints.width - ((float)4*bonus/500)/100 * [[CCDirector sharedDirector] viewSize].width ,waterBaseBar.contentSizeInPoints.width), waterBar.contentSizeInPoints.height);
         
         CCLabelTTF *bucketBonus = [CCLabelTTF labelWithString:[NSString stringWithFormat:@"%d", bonus] fontName:@"Arial" fontSize:16];
         bucketBonus.position = [monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(monkey.position.x,monkey.position.y + monkey.contentSize.height/2)]];
@@ -730,7 +799,7 @@
 
 
 -(BOOL)ccPhysicsCollisionBegin:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey ground:(CCNode *)ground {
-    if (!_gameOver) {
+    if (!_gameOver && !_reset) {
         [self gameOver];
     }
     return TRUE;

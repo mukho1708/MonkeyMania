@@ -11,5 +11,8 @@
     CCNode* ground2;
     CCLabelTTF* score;
     CCParticleSystem* fire_effect;
+    CCNodeColor* waterBaseBar;
+    CCNodeColor* waterBar;
+    CCLabelTTF* monkeyLifeLabel;
 }
 @end
