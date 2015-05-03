@@ -1,4 +1,5 @@
 #import "MainScene.h"
+#import "LastScreen.h"
 
 @implementation MainScene {
     // Variable declarations
@@ -34,7 +35,7 @@
     BOOL _sceneFirstFlareOn;
     BOOL _bucketActive;
     float _bucketTimer;
-    int _score;
+//    int _score;
     int _bonus;
     float _touchBeganX;
     float _touchBeganY;
@@ -44,6 +45,7 @@
     int _life;
     int _lifeLost;
     BOOL _reset;
+    LastScreen *last;
 }
 
 - (void)didLoadFromCCB 
@@ -406,7 +408,7 @@
 {
     if (!_gameOver) {
         _score = (int)(maxX - _beforeCollisionX)/10;
-        score.string = [NSString stringWithFormat:@"Score: %d", _score+_bonus];
+        scoreLabel.string = [NSString stringWithFormat:@"Score: %d", _score+_bonus];
         
         _gameTimer += delta;
         
@@ -674,29 +676,31 @@
             CCActionEaseBounce *bounce = [CCActionEaseBounce actionWithAction:shakeSequence];
             
             [self runAction:bounce];
+            [self performSelector:@selector(restart) withObject:nil afterDelay:0.5f];
         }
     }
 }
 
 - (void)restart {
-    CCScene *scene = [CCBReader loadAsScene:@"MainScene"];
-    [[CCDirector sharedDirector] replaceScene:scene];
+    last = (LastScreen *)[CCBReader load:@"LastScreen" owner:self];
+    last.score = _score + _bonus;
+    [levelNode addChild:last];
 }
 
 -(BOOL)ccPhysicsCollisionPostSolve:(CCPhysicsCollisionPair *)pair monkey:(CCNode *)monkey rope:(CCNode *)rope {
     if (![rope.physicsBody.collisionMask  isEqual: @[]] && !_gameOver) {
         
-        bool foundSegement = FALSE;
+        bool foundSegment = FALSE;
         
         for (NSMutableArray *aRope in _ropes) {
             for (id obj in aRope) {
                 if (obj == rope) {
-                    foundSegement = TRUE;
+                    foundSegment = TRUE;
                 }
             }
-            if (foundSegement) {
+            if (foundSegment) {
                 _currentRope = aRope;
-                foundSegement = FALSE;
+                foundSegment = FALSE;
             }
         }
         _currentRopeMonkeySeg = (Rope *)rope;

@@ -97,6 +97,8 @@
 		C50D11CB1ACAB17000BF1263 /* Rope.m in Sources */ = {isa = PBXBuildFile; fileRef = C50D11CA1ACAB17000BF1263 /* Rope.m */; };
 		C55790A61AF459850067D045 /* GameState.m in Sources */ = {isa = PBXBuildFile; fileRef = C55790A51AF459850067D045 /* GameState.m */; };
 		C57FB07B1AC961D700EC2981 /* Monkey.m in Sources */ = {isa = PBXBuildFile; fileRef = C57FB07A1AC961D700EC2981 /* Monkey.m */; };
+		C588AE6D1AF52F56002B6B34 /* StartScene.m in Sources */ = {isa = PBXBuildFile; fileRef = C588AE6C1AF52F56002B6B34 /* StartScene.m */; };
+		C588AE761AF5317C002B6B34 /* LastScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = C588AE751AF5317C002B6B34 /* LastScreen.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -221,6 +223,10 @@
 		C55790A51AF459850067D045 /* GameState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameState.m; sourceTree = "<group>"; };
 		C57FB0791AC961D700EC2981 /* Monkey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Monkey.h; sourceTree = "<group>"; };
 		C57FB07A1AC961D700EC2981 /* Monkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Monkey.m; sourceTree = "<group>"; };
+		C588AE6B1AF52F56002B6B34 /* StartScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StartScene.h; sourceTree = "<group>"; };
+		C588AE6C1AF52F56002B6B34 /* StartScene.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartScene.m; sourceTree = "<group>"; };
+		C588AE741AF5317C002B6B34 /* LastScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LastScreen.h; sourceTree = "<group>"; };
+		C588AE751AF5317C002B6B34 /* LastScreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LastScreen.m; sourceTree = "<group>"; };
 		D352B48019EC608A00829775 /* MetalShaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = MetalShaders; path = Source/MetalShaders; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -448,6 +454,10 @@
 				7A40362019DDEF0D007B6E8F /* Platforms */,
 				B7378992180767190076A88C /* MainScene.h */,
 				B7378993180767190076A88C /* MainScene.m */,
+				C588AE741AF5317C002B6B34 /* LastScreen.h */,
+				C588AE751AF5317C002B6B34 /* LastScreen.m */,
+				C588AE6B1AF52F56002B6B34 /* StartScene.h */,
+				C588AE6C1AF52F56002B6B34 /* StartScene.m */,
 				C55790A41AF459840067D045 /* GameState.h */,
 				C55790A51AF459850067D045 /* GameState.m */,
 				D352B48019EC608A00829775 /* MetalShaders */,
@@ -834,8 +844,10 @@
 				C50D11CB1ACAB17000BF1263 /* Rope.m in Sources */,
 				C55790A61AF459850067D045 /* GameState.m in Sources */,
 				B73789871807631A0076A88C /* main.m in Sources */,
+				C588AE761AF5317C002B6B34 /* LastScreen.m in Sources */,
 				7A046D8C19E8A20E004C4763 /* MainScene.m in Sources */,
 				C57FB07B1AC961D700EC2981 /* Monkey.m in Sources */,
+				C588AE6D1AF52F56002B6B34 /* StartScene.m in Sources */,
 				5B121038197487F2004C1E1D /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
