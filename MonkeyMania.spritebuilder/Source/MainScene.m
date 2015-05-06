@@ -372,7 +372,7 @@
         [tutorialBg addChild:tutorialText];
         [_monkey addChild:tutorialBg];
         
-        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:5];
         CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
             [tutorialBg removeAllChildren];
             [tutorialBg removeFromParent];
@@ -392,7 +392,7 @@
         [tutorialBg addChild:tutorialText];
         [_monkey addChild:tutorialBg];
         
-        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:3];
+        CCActionFadeOut *tutorialFade = [CCActionFadeOut actionWithDuration:5];
         CCActionCallBlock *actionAfterFade = [CCActionCallBlock actionWithBlock:^{
             [tutorialBg removeAllChildren];
             [tutorialBg removeFromParent];
@@ -598,6 +598,20 @@
             CCActionSequence *scaleUpDown = [CCActionSequence actionWithArray:@[scaleUp, scaleDown]];
             [monkeyLifeLabel runAction:scaleUpDown];
             
+            CCActionFadeOut *lifeFade = [CCActionFadeOut actionWithDuration:2];
+            CCActionMoveBy *lifeMove = [CCActionMoveBy actionWithDuration:2 position:ccp(0,_monkey.contentSize.height)];
+            CCLabelTTF *lifeLost = [CCLabelTTF labelWithString:@"Lost a Life!" fontName:@"Arial" fontSize:20];
+            lifeLost.position = ccp([[CCDirector sharedDirector] viewSize].width/2, [[CCDirector sharedDirector] viewSize].height/2);
+            lifeLost.fontColor = [CCColor redColor];
+            [self addChild:lifeLost];
+            
+            CCActionCallBlock *actionAfterMoving = [CCActionCallBlock actionWithBlock:^{
+                [lifeLost removeFromParent];
+            }];
+            [lifeLost runAction:lifeFade];
+            CCActionSequence *lifeLabelMove = [CCActionSequence actionWithArray:@[lifeMove, actionAfterMoving]];
+            [lifeLost runAction:lifeLabelMove];
+            
             BOOL found = FALSE;
             
             for (NSMutableArray *aRope in _ropes) {
@@ -676,7 +690,7 @@
             CCActionEaseBounce *bounce = [CCActionEaseBounce actionWithAction:shakeSequence];
             
             [self runAction:bounce];
-            [self performSelector:@selector(restart) withObject:nil afterDelay:0.5f];
+            [self performSelector:@selector(restart) withObject:nil afterDelay:2.25f];
         }
     }
 }
@@ -772,6 +786,8 @@
             [((CCParticleSystem *)flare[0]) stopSystem];
         }
         bucket.physicsBody.collisionMask = @[];
+        CCActionFadeOut *bonusFade = [CCActionFadeOut actionWithDuration:2];
+        CCActionMoveBy *bonusMove = [CCActionMoveBy actionWithDuration:2 position:ccp(0,monkey.contentSize.height)];
         int bonus = _gameTimer < 30 ? 750 : _gameTimer < 90 ? 1000 : 1500;
         _bonus += bonus;
         if (_bonus/3000 - _lifeLost > _life) {
@@ -780,6 +796,17 @@
             CCActionScaleTo *scaleDown = [CCActionScaleTo actionWithDuration:0.5 scaleX:1 scaleY:1];
             CCActionSequence *scaleUpDown = [CCActionSequence actionWithArray:@[scaleUp, scaleDown]];
             [monkeyLifeLabel runAction:scaleUpDown];
+            CCLabelTTF *lifeBonus = [CCLabelTTF labelWithString:@"Extra Life!" fontName:@"Arial" fontSize:16];
+            lifeBonus.position = [monkey convertToNodeSpace:[physicsNode convertToWorldSpace:ccp(monkey.position.x,monkey.position.y + monkey.contentSize.height)]];
+            lifeBonus.fontColor = [CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1];
+            [monkey addChild:lifeBonus];
+            
+            CCActionCallBlock *actionAfterMoving = [CCActionCallBlock actionWithBlock:^{
+                [lifeBonus removeFromParent];
+            }];
+            [lifeBonus runAction:bonusFade];
+            CCActionSequence *lifeLabelMove = [CCActionSequence actionWithArray:@[bonusMove, actionAfterMoving]];
+            [lifeBonus runAction:lifeLabelMove];
         }
         
         waterBar.contentSizeInPoints = CGSizeMake(fmodf(waterBar.contentSizeInPoints.width - ((float)4*bonus/500)/100 * [[CCDirector sharedDirector] viewSize].width ,waterBaseBar.contentSizeInPoints.width), waterBar.contentSizeInPoints.height);
@@ -789,8 +816,6 @@
         bucketBonus.fontColor = [CCColor colorWithRed:0.72 green:0.867 blue:1 alpha:1];
         [monkey addChild:bucketBonus];
         
-        CCActionFadeOut *bonusFade = [CCActionFadeOut actionWithDuration:2];
-        CCActionMoveBy *bonusMove = [CCActionMoveBy actionWithDuration:2 position:ccp(0,monkey.contentSize.height)];
         CCActionCallBlock *actionAfterMoving = [CCActionCallBlock actionWithBlock:^{
             [bucketBonus removeFromParent];
         }];
